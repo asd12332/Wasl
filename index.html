@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>سجل الوصولات</title>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f2ede7;
+    --surface: #ffffff;
+    --surface2: #f9f6f2;
+    --border: #e2dbd2;
+    --border-focus: #c4a87a;
+    --accent: #7a5c1e;
+    --accent-bg: #f0e6cf;
+    --green: #1d7a47;
+    --green-bg: #dff0e7;
+    --red: #b53a28;
+    --red-bg: #fce6e2;
+    --blue: #2468a8;
+    --blue-bg: #e2edf8;
+    --text: #1c1710;
+    --text-dim: #6b5f50;
+    --text-muted: #a09484;
+    --radius: 14px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Readex Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+
+  .btn {
+    font-family: 'Readex Pro', sans-serif;
+    border: none; cursor: pointer;
+    font-size: 0.84rem; font-weight: 600;
+    border-radius: 10px; padding: 12px 20px;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 6px; width: 100%;
+  }
+
+  .btn-primary {
+    background: var(--accent); color: #fff;
+    box-shadow: 0 3px 12px rgba(122,92,30,0.2);
+  }
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-ghost {
+    background: transparent; color: var(--text-dim);
+    border: 1.5px solid var(--border);
+  }
+
+  .btn-icon {
+    width: 38px; height: 38px; padding: 0;
+    border-radius: 10px; font-size: 16px; flex-shrink: 0;
+  }
+
+  .btn-danger-sm {
+    background: var(--red-bg); color: var(--red);
+    width: 32px; height: 32px; padding: 0;
+    border-radius: 8px; font-size: 14px;
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ─── App Header ─── */
+  .app-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .app-header-right { display: flex; align-items: center; gap: 10px; }
+
+  .app-header .logo-sm {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), #c4a040);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+  }
+
+  .app-header h1 { font-size: 0.95rem; }
+  .app-header-left { display: flex; gap: 6px; }
+
+  .app-body {
+    padding: 16px 12px;
+    padding-bottom: calc(80px + var(--safe-bottom));
+  }
+
+  /* ─── Photo Strip ─── */
+  .photo-strip {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 16px; overflow: hidden;
+  }
+
+  .photo-strip-head {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    background: var(--surface2); font-size: 0.78rem;
+    font-weight: 600; color: var(--text-dim);
+  }
+
+  .photo-strip-body {
+    display: flex; gap: 8px; padding: 10px 14px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+
+  .photo-add-btn {
+    min-width: 64px; height: 64px;
+    border: 2px dashed var(--border); border-radius: 10px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    cursor: pointer; font-size: 22px;
+    color: var(--text-muted); flex-shrink: 0;
+  }
+  .photo-add-btn:active { background: var(--accent-bg); border-color: var(--accent); }
+  .photo-add-btn span { font-size: 0.6rem; }
+
+  .photo-thumb {
+    width: 64px; height: 64px; border-radius: 10px;
+    object-fit: cover; border: 1px solid var(--border);
+    cursor: pointer; flex-shrink: 0;
+  }
+
+  .photo-input { display: none; }
+
+  /* ─── Stats ─── */
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 16px;
+  }
+
+  .stat-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px;
+  }
+
+  .stat-box .label {
+    font-size: 0.68rem; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+
+  .stat-box .val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem; font-weight: 700;
+    direction: ltr; text-align: right;
+  }
+
+  .c-green { color: var(--green); }
+  .c-accent { color: var(--accent); }
+  .c-blue { color: var(--blue); }
+  .c-red { color: var(--red); }
+
+  /* ─── Search ─── */
+  .search-bar { margin-bottom: 14px; position: relative; }
+
+  .search-bar input {
+    width: 100%; font-family: 'Readex Pro', sans-serif;
+    font-size: 0.85rem; padding: 11px 14px 11px 38px;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    background: var(--surface); color: var(--text);
+    outline: none; transition: border-color 0.2s;
+  }
+  .search-bar input:focus { border-color: var(--accent); }
+
+  .search-bar .s-icon {
+    position: absolute; left: 12px; top: 50%;
+    transform: translateY(-50%); font-size: 16px;
+    color: var(--text-muted); pointer-events: none;
+  }
+
+  /* ─── Receipt Cards ─── */
+  .cards-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .receipt-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .receipt-card:focus-within { box-shadow: 0 0 0 2px var(--border-focus); }
+
+  .card-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px 0;
+  }
+
+  .card-receipt-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem; font-weight: 700; color: var(--accent); direction: ltr;
+  }
+
+  .card-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.05rem; font-weight: 700; color: var(--green); direction: ltr;
+  }
+
+  .card-body {
+    padding: 10px 14px 14px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+
+  .card-field { display: flex; flex-direction: column; gap: 3px; }
+  .card-field.full { grid-column: 1 / -1; }
+
+  .card-field label {
+    font-size: 0.68rem; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+
+  .card-field input, .card-field select {
+    font-family: 'Readex Pro', sans-serif; font-size: 0.88rem;
+    padding: 9px 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; background: var(--surface2);
+    color: var(--text); outline: none; width: 100%;
+    transition: border-color 0.15s;
+  }
+
+  .card-field input:focus, .card-field select:focus {
+    border-color: var(--accent); background: #fff;
+  }
+
+  .card-field input.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600; direction: ltr; text-align: right;
+  }
+
+  .card-field select {
+    appearance: none; -webkit-appearance: none; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a09484' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: 12px center;
+    padding-left: 28px;
+  }
+
+  .card-actions {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 14px 12px;
+  }
+
+  .method-badge {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 6px; font-size: 0.72rem; font-weight: 700;
+  }
+  .method-badge.cash { background: var(--green-bg); color: var(--green); }
+  .method-badge.credit { background: var(--red-bg); color: var(--red); }
+  .method-badge.transfer { background: var(--blue-bg); color: var(--blue); }
+  .method-badge.check { background: var(--accent-bg); color: var(--accent); }
+
+  /* ─── Empty ─── */
+  .empty-state {
+    text-align: center; padding: 48px 20px; color: var(--text-muted);
+  }
+  .empty-state .e-icon { font-size: 44px; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.88rem; line-height: 1.6; }
+
+  /* ─── FAB ─── */
+  .fab {
+    position: fixed;
+    bottom: calc(20px + var(--safe-bottom));
+    left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #fff;
+    border: none; font-family: 'Readex Pro', sans-serif;
+    font-size: 0.9rem; font-weight: 700;
+    padding: 14px 28px; border-radius: 50px;
+    box-shadow: 0 6px 24px rgba(122,92,30,0.35);
+    cursor: pointer; z-index: 100;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .fab:active { transform: translateX(-50%) scale(0.95); }
+
+  /* ─── Lightbox ─── */
+  .lightbox {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.9); z-index: 999;
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 90dvh; border-radius: 12px; }
+
+  .lightbox-close {
+    position: absolute; top: 16px; left: 16px;
+    width: 40px; height: 40px; border-radius: 50%;
+    border: none; background: rgba(255,255,255,0.15);
+    color: #fff; font-size: 20px; cursor: pointer;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* ─── Toast ─── */
+  .toast {
+    position: fixed; bottom: calc(80px + var(--safe-bottom));
+    left: 50%; transform: translateX(-50%);
+    background: var(--green); color: #fff;
+    padding: 10px 24px; border-radius: 10px;
+    font-size: 0.82rem; font-weight: 600; z-index: 200;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    animation: toastIn 0.3s ease;
+  }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  /* ─── Sync dot ─── */
+  .sync-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green); display: inline-block;
+    box-shadow: 0 0 6px rgba(29,122,71,0.4);
+  }
+  .sync-dot.offline { background: var(--red); box-shadow: 0 0 6px rgba(181,58,40,0.4); }
+  .sync-dot.syncing { background: var(--accent); animation: pulse 1s ease infinite; }
+
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+  /* ─── Loading splash ─── */
+  .splash {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 1000;
+    transition: opacity 0.3s;
+  }
+
+  .splash.hide { opacity: 0; pointer-events: none; }
+
+  .splash .logo-big {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, var(--accent), #c4a040);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin-bottom: 16px;
+    box-shadow: 0 4px 16px rgba(122,92,30,0.25);
+  }
+
+  .splash p { color: var(--text-muted); font-size: 0.85rem; }
+
+  .splash .loader {
+    width: 28px; height: 28px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin-top: 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── Connection error banner ─── */
+  .error-banner {
+    display: none;
+    background: var(--red-bg); color: var(--red);
+    padding: 12px 16px; text-align: center;
+    font-size: 0.82rem; font-weight: 600;
+  }
+
+  .error-banner.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Splash loading -->
+<div class="splash" id="splash">
+  <div class="logo-big">📋</div>
+  <p>جاري التحميل...</p>
+  <div class="loader"></div>
+</div>
+
+<!-- Error banner -->
+<div class="error-banner" id="errorBanner">
+  <span id="errorMsg">❌ لا يمكن الاتصال بالقاعدة</span> — <a href="javascript:loadReceipts()" style="color:var(--red);text-decoration:underline">إعادة المحاولة</a>
+</div>
+
+<!-- App Header -->
+<div class="app-header">
+  <div class="app-header-right">
+    <div class="logo-sm">📋</div>
+    <h1>الوصولات</h1>
+    <span class="sync-dot" id="syncDot"></span>
+  </div>
+  <div class="app-header-left">
+    <button class="btn btn-ghost btn-icon" onclick="exportCSV()" title="تصدير">📥</button>
+    <button class="btn btn-ghost btn-icon" onclick="loadReceipts()" title="تحديث">🔄</button>
+  </div>
+</div>
+
+<div class="app-body">
+
+  <!-- Photos -->
+  <div class="photo-strip">
+    <div class="photo-strip-head">📸 ارفع صورة الورقة وادخل البيانات</div>
+    <div class="photo-strip-body" id="photoBody">
+      <label class="photo-add-btn" for="photoInput">＋<span>صورة</span></label>
+      <input type="file" class="photo-input" id="photoInput" accept="image/*" multiple>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="label">الوصولات</div>
+      <div class="val c-accent" id="sCount">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">المجموع</div>
+      <div class="val c-green" id="sTotal">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">كاش</div>
+      <div class="val c-blue" id="sCash">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">آجل</div>
+      <div class="val c-red" id="sCredit">0</div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <span class="s-icon">🔍</span>
+    <input type="text" placeholder="بحث..." id="searchInput" oninput="renderCards()">
+  </div>
+
+  <!-- Cards -->
+  <div class="cards-list" id="cardsList"></div>
+  <div class="empty-state" id="emptyState" style="display:none">
+    <div class="e-icon">📝</div>
+    <p>لا توجد وصولات<br>اضغط الزر لإضافة أول وصل</p>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="addReceipt()">＋ وصل جديد</button>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="">
+</div>
+
+<script>
+  // ═══════════════════════════════════════
+  //  CONFIG — hardcoded
+  // ═══════════════════════════════════════
+  const SUPABASE_URL = 'https://njvcpytgxnhqkbnntnbn.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_3w0Ez-vr5RGTnXfo9nCmqg_YdPIU2y9';
+
+  let receipts = [];
+  let photos = [];
+
+  // ─── INIT ───
+  loadReceipts();
+
+  // ─── API ───
+  function hdrs(prefer) {
+    const h = {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json'
+    };
+    if (prefer) h['Prefer'] = prefer;
+    return h;
+  }
+
+  function syncState(s) {
+    const d = document.getElementById('syncDot');
+    d.className = 'sync-dot' + (s === 'sync' ? ' syncing' : s === 'err' ? ' offline' : '');
+  }
+
+  // ─── LOAD ───
+  async function loadReceipts() {
+    syncState('sync');
+    document.getElementById('errorBanner').classList.remove('show');
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/receipts?order=created_at.desc`, { headers: hdrs() });
+      if (!r.ok) {
+        const errBody = await r.text().catch(() => '');
+        throw new Error(`HTTP ${r.status}: ${errBody}`);
+      }
+      receipts = await r.json();
+      syncState('ok');
+      renderCards();
+      updateStats();
+    } catch(e) {
+      syncState('err');
+      const msg = document.getElementById('errorMsg');
+      if (e.message && e.message.includes('HTTP')) {
+        msg.textContent = `❌ خطأ من القاعدة: ${e.message}`;
+      } else if (e.name === 'TypeError') {
+        msg.textContent = '❌ لا يمكن الاتصال — تحقق من الإنترنت أو جرب من GitHub Pages';
+      } else {
+        msg.textContent = `❌ خطأ: ${e.message || 'غير معروف'}`;
+      }
+      document.getElementById('errorBanner').classList.add('show');
+      console.error('Load error:', e);
+    } finally {
+      // Hide splash
+      const sp = document.getElementById('splash');
+      if (sp) { sp.classList.add('hide'); setTimeout(() => sp.remove(), 400); }
+    }
+  }
+
+  // ─── ADD ───
+  async function addReceipt() {
+    syncState('sync');
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/receipts`, {
+        method: 'POST', headers: hdrs('return=representation'),
+        body: JSON.stringify({ receipt_number:'', amount:0, payment_method:'كاش', receipt_date:today, notes:'' })
+      });
+      if (!r.ok) throw 0;
+      const data = await r.json();
+      receipts.unshift(data[0]);
+      syncState('ok'); renderCards(); updateStats();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        const f = document.querySelector('.receipt-card input');
+        if (f) f.focus();
+      }, 300);
+    } catch(e) { syncState('err'); showToast('❌ خطأ'); }
+  }
+
+  // ─── UPDATE (debounced) ───
+  let saveTimers = {};
+  function updateField(id, field, value) {
+    const r = receipts.find(x => x.id === id);
+    if (r) r[field] = value;
+    updateStats();
+    clearTimeout(saveTimers[`${id}-${field}`]);
+    saveTimers[`${id}-${field}`] = setTimeout(() => pushUpdate(id, field, value), 600);
+  }
+
+  async function pushUpdate(id, field, value) {
+    syncState('sync');
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/receipts?id=eq.${id}`, {
+        method: 'PATCH', headers: hdrs('return=minimal'),
+        body: JSON.stringify({ [field]: value })
+      });
+      if (!r.ok) throw 0;
+      syncState('ok');
+    } catch(e) { syncState('err'); }
+  }
+
+  // ─── DELETE ───
+  async function deleteReceipt(id) {
+    if (!confirm('حذف هذا الوصل؟')) return;
+    syncState('sync');
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/receipts?id=eq.${id}`, {
+        method: 'DELETE', headers: hdrs()
+      });
+      if (!r.ok) throw 0;
+      receipts = receipts.filter(x => x.id !== id);
+      syncState('ok'); renderCards(); updateStats();
+    } catch(e) { syncState('err'); showToast('❌ خطأ'); }
+  }
+
+  // ─── RENDER ───
+  function renderCards() {
+    const term = (document.getElementById('searchInput').value || '').toLowerCase();
+    const filtered = receipts.filter(r => {
+      if (!term) return true;
+      return `${r.receipt_number} ${r.amount} ${r.notes} ${r.payment_method}`.toLowerCase().includes(term);
+    });
+
+    const list = document.getElementById('cardsList');
+    const empty = document.getElementById('emptyState');
+
+    if (!filtered.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+
+    list.innerHTML = filtered.map(r => {
+      const mc = r.payment_method === 'كاش' ? 'cash' : r.payment_method === 'آجل' ? 'credit'
+        : r.payment_method === 'تحويل' ? 'transfer' : 'check';
+      return `
+      <div class="receipt-card">
+        <div class="card-top">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:0.72rem;color:var(--text-muted)">وصل #</span>
+            <span class="card-receipt-num">${esc(r.receipt_number)||'—'}</span>
+          </div>
+          <div class="card-amount">${fmt(r.amount)}</div>
+        </div>
+        <div class="card-body">
+          <div class="card-field">
+            <label>رقم الوصل</label>
+            <input class="mono" type="text" value="${esc(r.receipt_number)}" placeholder="930"
+              oninput="updateField(${r.id},'receipt_number',this.value);updHead(this)"
+              inputmode="numeric">
+          </div>
+          <div class="card-field">
+            <label>المبلغ</label>
+            <input class="mono" type="number" value="${r.amount||''}" placeholder="0"
+              oninput="updateField(${r.id},'amount',parseFloat(this.value)||0);updAmt(this)"
+              inputmode="decimal">
+          </div>
+          <div class="card-field">
+            <label>طريقة الدفع</label>
+            <select onchange="updateField(${r.id},'payment_method',this.value);renderCards()">
+              <option value="كاش" ${r.payment_method==='كاش'?'selected':''}>كاش</option>
+              <option value="آجل" ${r.payment_method==='آجل'?'selected':''}>آجل</option>
+              <option value="تحويل" ${r.payment_method==='تحويل'?'selected':''}>تحويل</option>
+              <option value="شيك" ${r.payment_method==='شيك'?'selected':''}>شيك</option>
+            </select>
+          </div>
+          <div class="card-field">
+            <label>التاريخ</label>
+            <input class="mono" type="date" value="${r.receipt_date||''}"
+              onchange="updateField(${r.id},'receipt_date',this.value)">
+          </div>
+          <div class="card-field full">
+            <label>ملاحظات</label>
+            <input type="text" value="${esc(r.notes)}" placeholder="..."
+              oninput="updateField(${r.id},'notes',this.value)">
+          </div>
+        </div>
+        <div class="card-actions">
+          <span class="method-badge ${mc}">${r.payment_method||'كاش'}</span>
+          <button class="btn-danger-sm" onclick="deleteReceipt(${r.id})">🗑️</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function updHead(el) {
+    el.closest('.receipt-card').querySelector('.card-receipt-num').textContent = el.value || '—';
+  }
+
+  function updAmt(el) {
+    el.closest('.receipt-card').querySelector('.card-amount').textContent = fmt(el.value);
+  }
+
+  function esc(s) { return s == null ? '' : String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  function fmt(n) { return (parseFloat(n)||0).toLocaleString(); }
+
+  // ─── STATS ───
+  function updateStats() {
+    const total = receipts.reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
+    const cash = receipts.filter(r => r.payment_method==='كاش').reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
+    const credit = receipts.filter(r => r.payment_method==='آجل').reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
+    document.getElementById('sCount').textContent = receipts.length;
+    document.getElementById('sTotal').textContent = total.toLocaleString();
+    document.getElementById('sCash').textContent = cash.toLocaleString();
+    document.getElementById('sCredit').textContent = credit.toLocaleString();
+  }
+
+  // ─── PHOTOS ───
+  document.getElementById('photoInput').addEventListener('change', function(e) {
+    Array.from(e.target.files).forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = ev => { photos.push(ev.target.result); renderPhotos(); };
+      reader.readAsDataURL(file);
+    });
+    this.value = '';
+  });
+
+  function renderPhotos() {
+    const body = document.getElementById('photoBody');
+    body.querySelectorAll('.photo-thumb').forEach(el => el.remove());
+    photos.forEach(src => {
+      const img = document.createElement('img');
+      img.className = 'photo-thumb'; img.src = src;
+      img.onclick = () => openLightbox(src);
+      body.insertBefore(img, body.querySelector('.photo-add-btn'));
+    });
+  }
+
+  function openLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightbox').classList.add('active');
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  // ─── EXPORT ───
+  function exportCSV() {
+    if (!receipts.length) return;
+    const BOM = '\uFEFF';
+    const h = 'رقم الوصل,المبلغ,طريقة الدفع,التاريخ,ملاحظات\n';
+    const csv = h + receipts.map(r =>
+      `${r.receipt_number},${r.amount},${r.payment_method},${r.receipt_date},"${(r.notes||'').replace(/"/g,'""')}"`
+    ).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([BOM+csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = `receipts_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+  }
+
+  // ─── TOAST ───
+  function showToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast'; t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2200);
+  }
+</script>
+</body>
+</html>
