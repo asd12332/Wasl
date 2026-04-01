@@ -4,467 +4,174 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>سجل الوصولات</title>
 <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f2ede7;
-    --surface: #ffffff;
-    --surface2: #f9f6f2;
-    --border: #e2dbd2;
-    --border-focus: #c4a87a;
-    --accent: #7a5c1e;
-    --accent-bg: #f0e6cf;
-    --green: #1d7a47;
-    --green-bg: #dff0e7;
-    --red: #b53a28;
-    --red-bg: #fce6e2;
-    --blue: #2468a8;
-    --blue-bg: #e2edf8;
-    --orange: #b86e14;
-    --orange-bg: #fdf0dc;
-    --text: #1c1710;
-    --text-dim: #6b5f50;
-    --text-muted: #a09484;
+    --bg: #f2ede7; --surface: #fff; --surface2: #f9f6f2;
+    --border: #e2dbd2; --border-focus: #c4a87a;
+    --accent: #7a5c1e; --accent-bg: #f0e6cf;
+    --green: #1d7a47; --green-bg: #dff0e7;
+    --red: #b53a28; --red-bg: #fce6e2;
+    --blue: #2468a8; --blue-bg: #e2edf8;
+    --orange: #b86e14; --orange-bg: #fdf0dc;
+    --text: #1c1710; --text-dim: #6b5f50; --text-muted: #a09484;
     --radius: 14px;
     --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-  body {
-    font-family: 'Readex Pro', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100dvh;
-    -webkit-font-smoothing: antialiased;
-    overscroll-behavior: none;
-  }
-
-  .btn {
-    font-family: 'Readex Pro', sans-serif;
-    border: none; cursor: pointer;
-    font-size: 0.84rem; font-weight: 600;
-    border-radius: 10px; padding: 12px 20px;
-    transition: all 0.2s;
-    display: inline-flex; align-items: center; justify-content: center;
-    gap: 6px;
-  }
-
-  .btn-primary {
-    background: var(--accent); color: #fff;
-    box-shadow: 0 3px 12px rgba(122,92,30,0.2);
-  }
-  .btn-primary:active { transform: scale(0.97); }
-
-  .btn-ghost {
-    background: transparent; color: var(--text-dim);
-    border: 1.5px solid var(--border);
-  }
-
-  .btn-icon {
-    width: 38px; height: 38px; padding: 0;
-    border-radius: 10px; font-size: 16px; flex-shrink: 0;
-  }
-
-  .btn-danger-sm {
-    background: var(--red-bg); color: var(--red);
-    width: 32px; height: 32px; padding: 0;
-    border-radius: 8px; font-size: 14px;
-    border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  /* ─── Header ─── */
-  .app-header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 16px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
-  }
-
-  .app-header-right { display: flex; align-items: center; gap: 10px; }
-
-  .app-header .logo-sm {
-    width: 32px; height: 32px;
-    background: linear-gradient(135deg, var(--accent), #c4a040);
-    border-radius: 9px;
-    display: flex; align-items: center; justify-content: center; font-size: 15px;
-  }
-
-  .app-header h1 { font-size: 0.95rem; }
-  .app-header-left { display: flex; gap: 6px; }
-
-  .app-body {
-    padding: 16px 12px;
-    padding-bottom: calc(80px + var(--safe-bottom));
-  }
-
-  /* ─── Scan Section ─── */
-  .scan-section {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); margin-bottom: 16px; overflow: hidden;
-  }
-
-  .scan-header {
-    padding: 12px 14px; border-bottom: 1px solid var(--border);
-    background: var(--surface2); font-size: 0.82rem;
-    font-weight: 600; color: var(--text-dim);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-
-  .scan-body { padding: 14px; }
-
-  .scan-upload-area {
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    padding: 28px 16px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .scan-upload-area:active {
-    border-color: var(--accent);
-    background: var(--accent-bg);
-  }
-
-  .scan-upload-area .icon { font-size: 36px; margin-bottom: 8px; }
-  .scan-upload-area p { font-size: 0.82rem; color: var(--text-muted); }
-  .scan-upload-area .main-text { font-size: 0.9rem; color: var(--text-dim); font-weight: 600; margin-bottom: 4px; }
-
-  .scan-input { display: none; }
-
-  /* Scan preview */
-  .scan-preview {
-    display: none;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
-
-  .scan-preview img {
-    width: 100%; max-height: 250px;
-    object-fit: contain; background: #f5f0ea;
-    cursor: pointer;
-  }
-
-  .scan-actions {
-    display: flex; gap: 8px; padding: 12px;
-    background: var(--surface2);
-  }
-
-  .scan-actions .btn { flex: 1; }
-
-  /* Scanning animation */
-  .scanning-overlay {
-    display: none;
-    padding: 32px 16px;
-    text-align: center;
-  }
-
-  .scanning-overlay.active { display: block; }
-
-  .scan-anim {
-    width: 48px; height: 48px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    margin: 0 auto 14px;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .scanning-overlay p { font-size: 0.85rem; color: var(--text-dim); }
-  .scanning-overlay .sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
-
-  /* Scan results banner */
-  .scan-result {
-    display: none;
-    margin-top: 12px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 0.82rem;
-    font-weight: 600;
-  }
-
-  .scan-result.success {
-    background: var(--green-bg); color: var(--green); display: block;
-  }
-
-  .scan-result.error {
-    background: var(--red-bg); color: var(--red); display: block;
-  }
-
-  /* AI badge on cards */
-  .ai-badge {
-    display: inline-block; padding: 2px 8px;
-    background: var(--orange-bg); color: var(--orange);
-    border-radius: 5px; font-size: 0.65rem; font-weight: 700;
-    margin-right: 6px;
-  }
-
-  /* ─── Stats ─── */
-  .stats-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px; margin-bottom: 16px;
-  }
-
-  .stat-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 14px;
-  }
-
-  .stat-box .label {
-    font-size: 0.68rem; font-weight: 600; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
-  }
-
-  .stat-box .val {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.2rem; font-weight: 700;
-    direction: ltr; text-align: right;
-  }
-
-  .c-green { color: var(--green); }
-  .c-accent { color: var(--accent); }
-  .c-blue { color: var(--blue); }
-  .c-red { color: var(--red); }
-
-  /* ─── Search ─── */
-  .search-bar { margin-bottom: 14px; position: relative; }
-
-  .search-bar input {
-    width: 100%; font-family: 'Readex Pro', sans-serif;
-    font-size: 0.85rem; padding: 11px 14px 11px 38px;
-    border: 1.5px solid var(--border); border-radius: 12px;
-    background: var(--surface); color: var(--text);
-    outline: none; transition: border-color 0.2s;
-  }
-  .search-bar input:focus { border-color: var(--accent); }
-
-  .search-bar .s-icon {
-    position: absolute; left: 12px; top: 50%;
-    transform: translateY(-50%); font-size: 16px;
-    color: var(--text-muted); pointer-events: none;
-  }
-
-  /* ─── Compact Receipt Rows ─── */
-  .cards-list { display: flex; flex-direction: column; gap: 6px; }
-
-  .receipt-row {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 8px 10px;
-    display: flex; align-items: center; gap: 6px;
-    transition: box-shadow 0.15s;
-  }
-
-  .receipt-row:focus-within { box-shadow: 0 0 0 2px var(--border-focus); }
-
-  .receipt-row .r-num {
-    width: 70px; flex-shrink: 0;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.82rem; font-weight: 700;
-    padding: 6px 8px; border: 1px solid var(--border);
-    border-radius: 6px; background: var(--surface2);
-    color: var(--accent); outline: none;
-    direction: ltr; text-align: center;
-  }
-
-  .receipt-row .r-amt {
-    width: 80px; flex-shrink: 0;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.82rem; font-weight: 700;
-    padding: 6px 8px; border: 1px solid var(--border);
-    border-radius: 6px; background: var(--surface2);
-    color: var(--green); outline: none;
-    direction: ltr; text-align: center;
-  }
-
-  .receipt-row .r-method {
-    width: 58px; flex-shrink: 0;
-    font-family: 'Readex Pro', sans-serif;
-    font-size: 0.72rem; font-weight: 600;
-    padding: 6px 4px; border: 1px solid var(--border);
-    border-radius: 6px; background: var(--surface2);
-    color: var(--text); outline: none;
-    appearance: none; -webkit-appearance: none;
-    text-align: center; cursor: pointer;
-  }
-
-  .receipt-row .r-notes {
-    flex: 1; min-width: 0;
-    font-family: 'Readex Pro', sans-serif;
-    font-size: 0.78rem;
-    padding: 6px 8px; border: 1px solid var(--border);
-    border-radius: 6px; background: var(--surface2);
-    color: var(--text-dim); outline: none;
-  }
-
-  .receipt-row input:focus, .receipt-row select:focus {
-    border-color: var(--accent); background: #fff;
-  }
-
-  .receipt-row .r-del {
-    width: 28px; height: 28px; flex-shrink: 0;
-    background: none; border: none;
-    color: var(--text-muted); font-size: 13px;
-    cursor: pointer; border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .receipt-row .r-del:active { background: var(--red-bg); color: var(--red); }
-
-  /* Column header */
-  .row-header {
-    display: flex; gap: 6px; padding: 0 10px;
-    margin-bottom: 4px;
-    font-size: 0.62rem; font-weight: 700;
-    color: var(--text-muted); text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .row-header span:nth-child(1) { width: 70px; text-align: center; flex-shrink: 0; }
-  .row-header span:nth-child(2) { width: 80px; text-align: center; flex-shrink: 0; }
-  .row-header span:nth-child(3) { width: 58px; text-align: center; flex-shrink: 0; }
-  .row-header span:nth-child(4) { flex: 1; }
-  .row-header span:nth-child(5) { width: 28px; flex-shrink: 0; }
-
-  .empty-state {
-    text-align: center; padding: 48px 20px; color: var(--text-muted);
-  }
-  .empty-state .e-icon { font-size: 44px; margin-bottom: 12px; }
-  .empty-state p { font-size: 0.88rem; line-height: 1.6; }
-
-  /* ─── FAB ─── */
-  .fab {
-    position: fixed;
-    bottom: calc(20px + var(--safe-bottom));
-    left: 50%; transform: translateX(-50%);
-    background: var(--accent); color: #fff;
-    border: none; font-family: 'Readex Pro', sans-serif;
-    font-size: 0.9rem; font-weight: 700;
-    padding: 14px 28px; border-radius: 50px;
-    box-shadow: 0 6px 24px rgba(122,92,30,0.35);
-    cursor: pointer; z-index: 100;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .fab:active { transform: translateX(-50%) scale(0.95); }
-
-  /* ─── Lightbox ─── */
-  .lightbox {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.9); z-index: 999;
-    align-items: center; justify-content: center; padding: 16px;
-  }
-  .lightbox.active { display: flex; }
-  .lightbox img { max-width: 100%; max-height: 90dvh; border-radius: 12px; }
-
-  .lightbox-close {
-    position: absolute; top: 16px; left: 16px;
-    width: 40px; height: 40px; border-radius: 50%;
-    border: none; background: rgba(255,255,255,0.15);
-    color: #fff; font-size: 20px; cursor: pointer;
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  }
-
-  /* ─── Toast ─── */
-  .toast {
-    position: fixed; bottom: calc(80px + var(--safe-bottom));
-    left: 50%; transform: translateX(-50%);
-    padding: 10px 24px; border-radius: 10px;
-    font-size: 0.82rem; font-weight: 600; z-index: 200;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    animation: toastIn 0.3s ease;
-  }
-
-  .toast.success { background: var(--green); color: #fff; }
-  .toast.error { background: var(--red); color: #fff; }
-
-  @keyframes toastIn {
-    from { opacity: 0; transform: translateX(-50%) translateY(12px); }
-    to { opacity: 1; transform: translateX(-50%) translateY(0); }
-  }
-
-  .sync-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--green); display: inline-block;
-    box-shadow: 0 0 6px rgba(29,122,71,0.4);
-  }
-  .sync-dot.offline { background: var(--red); box-shadow: 0 0 6px rgba(181,58,40,0.4); }
-  .sync-dot.syncing { background: var(--accent); animation: pulse 1s ease infinite; }
-
-  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-
-  .splash {
-    position: fixed; inset: 0; background: var(--bg);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center; z-index: 1000;
-    transition: opacity 0.3s;
-  }
-  .splash.hide { opacity: 0; pointer-events: none; }
-
-  .splash .logo-big {
-    width: 56px; height: 56px;
-    background: linear-gradient(135deg, var(--accent), #c4a040);
-    border-radius: 16px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 26px; margin-bottom: 16px;
-  }
-  .splash p { color: var(--text-muted); font-size: 0.85rem; }
-  .splash .loader { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-top: 16px; }
-
-  .error-banner {
-    display: none; background: var(--red-bg); color: var(--red);
-    padding: 12px 16px; text-align: center;
-    font-size: 0.82rem; font-weight: 600;
-  }
-  .error-banner.show { display: block; }
-
-  /* ─── API Key modal ─── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5); z-index: 800;
-    align-items: center; justify-content: center; padding: 20px;
-  }
-  .modal-overlay.active { display: flex; }
-
-  .modal {
-    background: var(--surface); border-radius: 20px;
-    padding: 28px 22px; width: 100%; max-width: 400px;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.15);
-  }
-
-  .modal h2 { font-size: 1.1rem; margin-bottom: 6px; }
-  .modal .sub { color: var(--text-muted); font-size: 0.78rem; margin-bottom: 20px; line-height: 1.6; }
-
-  .modal input {
-    width: 100%; font-family: 'JetBrains Mono', monospace;
-    font-size: 0.78rem; padding: 11px 14px;
-    border: 1.5px solid var(--border); border-radius: 10px;
-    background: var(--surface2); color: var(--text);
-    outline: none; direction: ltr; margin-bottom: 14px;
-  }
-  .modal input:focus { border-color: var(--accent); }
-
-  .modal-btns { display: flex; gap: 10px; }
-  .modal-btns .btn { flex: 1; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:'Readex Pro',sans-serif; background:var(--bg); color:var(--text); min-height:100dvh; -webkit-font-smoothing:antialiased; }
+
+  .btn { font-family:'Readex Pro',sans-serif; border:none; cursor:pointer; font-size:.84rem; font-weight:600; border-radius:10px; padding:12px 20px; transition:all .2s; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+  .btn-primary { background:var(--accent); color:#fff; box-shadow:0 3px 12px rgba(122,92,30,.2); }
+  .btn-primary:active { transform:scale(.97); }
+  .btn-ghost { background:transparent; color:var(--text-dim); border:1.5px solid var(--border); }
+  .btn-icon { width:38px; height:38px; padding:0; border-radius:10px; font-size:16px; flex-shrink:0; }
+  .btn-danger-sm { background:var(--red-bg); color:var(--red); width:32px; height:32px; padding:0; border-radius:8px; font-size:14px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+  /* Header */
+  .app-header { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 16px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+  .app-header-right { display:flex; align-items:center; gap:10px; }
+  .app-header .logo-sm { width:32px; height:32px; background:linear-gradient(135deg,var(--accent),#c4a040); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:15px; }
+  .app-header h1 { font-size:.95rem; }
+  .app-header-left { display:flex; gap:6px; }
+  .app-body { padding:16px 12px; padding-bottom:calc(80px + var(--safe-bottom)); }
+
+  /* Scan */
+  .scan-section { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:16px; overflow:hidden; }
+  .scan-header { padding:12px 14px; border-bottom:1px solid var(--border); background:var(--surface2); font-size:.82rem; font-weight:600; color:var(--text-dim); }
+  .scan-body { padding:14px; }
+  .scan-upload-area { border:2px dashed var(--border); border-radius:12px; padding:28px 16px; text-align:center; cursor:pointer; transition:all .2s; }
+  .scan-upload-area:active { border-color:var(--accent); background:var(--accent-bg); }
+  .scan-upload-area .icon { font-size:36px; margin-bottom:8px; }
+  .scan-upload-area .main-text { font-size:.9rem; color:var(--text-dim); font-weight:600; margin-bottom:4px; }
+  .scan-upload-area p { font-size:.82rem; color:var(--text-muted); }
+  .scan-input { display:none; }
+  .scan-preview { display:none; border-radius:12px; overflow:hidden; border:1px solid var(--border); }
+  .scan-preview img { width:100%; max-height:250px; object-fit:contain; background:#f5f0ea; cursor:pointer; }
+  .scan-actions { display:flex; gap:8px; padding:12px; background:var(--surface2); }
+  .scan-actions .btn { flex:1; }
+  .scanning-overlay { display:none; padding:32px 16px; text-align:center; }
+  .scanning-overlay.active { display:block; }
+  .scan-anim { width:48px; height:48px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 14px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .scanning-overlay p { font-size:.85rem; color:var(--text-dim); }
+  .scanning-overlay .sub { font-size:.75rem; color:var(--text-muted); margin-top:4px; }
+  .scan-result { display:none; margin-top:12px; padding:10px 14px; border-radius:10px; font-size:.82rem; font-weight:600; }
+  .scan-result.success { background:var(--green-bg); color:var(--green); display:block; }
+  .scan-result.error { background:var(--red-bg); color:var(--red); display:block; }
+
+  /* Stats */
+  .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .stat-box { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; }
+  .stat-box .label { font-size:.68rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+  .stat-box .val { font-family:'JetBrains Mono',monospace; font-size:1.2rem; font-weight:700; direction:ltr; text-align:right; }
+  .c-green { color:var(--green); } .c-accent { color:var(--accent); } .c-blue { color:var(--blue); } .c-red { color:var(--red); }
+
+  /* Search */
+  .search-bar { margin-bottom:14px; position:relative; }
+  .search-bar input { width:100%; font-family:'Readex Pro',sans-serif; font-size:.85rem; padding:11px 14px 11px 38px; border:1.5px solid var(--border); border-radius:12px; background:var(--surface); color:var(--text); outline:none; }
+  .search-bar input:focus { border-color:var(--accent); }
+  .search-bar .s-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:16px; color:var(--text-muted); pointer-events:none; }
+
+  /* ─── Envelope Card ─── */
+  .envelope-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:12px; }
+  .envelope-card.mismatch { border-color:var(--red); border-width:2px; }
+  .envelope-card.new-card { animation:cardIn .4s ease; }
+  @keyframes cardIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+
+  .env-top { display:flex; align-items:center; justify-content:space-between; padding:14px 14px 0; }
+  .env-date { font-family:'JetBrains Mono',monospace; font-size:.85rem; font-weight:600; color:var(--accent); direction:ltr; }
+
+  .env-totals { display:flex; gap:12px; align-items:center; }
+  .env-total-box { text-align:center; }
+  .env-total-box .t-label { font-size:.6rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; }
+  .env-total-box .t-val { font-family:'JetBrains Mono',monospace; font-size:1.1rem; font-weight:700; direction:ltr; }
+  .env-total-box .t-val.ok { color:var(--green); }
+  .env-total-box .t-val.bad { color:var(--red); }
+
+  .env-vs { font-size:.75rem; font-weight:700; color:var(--text-muted); padding:0 2px; }
+
+  .mismatch-badge { display:inline-block; padding:3px 10px; background:var(--red-bg); color:var(--red); border-radius:6px; font-size:.7rem; font-weight:700; margin-right:6px; }
+  .match-badge { display:inline-block; padding:3px 10px; background:var(--green-bg); color:var(--green); border-radius:6px; font-size:.7rem; font-weight:700; margin-right:6px; }
+
+  /* Envelope fields */
+  .env-fields { padding:10px 14px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .env-field { display:flex; flex-direction:column; gap:3px; }
+  .env-field.full { grid-column:1/-1; }
+  .env-field label { font-size:.68rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.3px; }
+  .env-field input { font-family:'Readex Pro',sans-serif; font-size:.88rem; padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; background:var(--surface2); color:var(--text); outline:none; width:100%; transition:border-color .15s; }
+  .env-field input:focus { border-color:var(--accent); background:#fff; }
+  .env-field input.mono { font-family:'JetBrains Mono',monospace; font-weight:600; direction:ltr; text-align:right; }
+
+  /* Receipts inside envelope */
+  .env-receipts { padding:0 14px 10px; }
+  .env-receipts-header { font-size:.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; padding-top:4px; border-top:1px dashed var(--border); }
+
+  .receipt-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); }
+  .receipt-row:last-child { border-bottom:none; }
+  .receipt-row input { font-family:'JetBrains Mono',monospace; font-size:.82rem; font-weight:600; padding:6px 10px; border:1.5px solid var(--border); border-radius:7px; background:var(--surface2); color:var(--text); outline:none; direction:ltr; text-align:right; transition:border-color .15s; }
+  .receipt-row input:focus { border-color:var(--accent); background:#fff; }
+  .receipt-row .r-num { width:80px; }
+  .receipt-row .r-amt { width:90px; }
+  .receipt-row .r-note { flex:1; min-width:0; font-family:'Readex Pro',sans-serif; direction:rtl; text-align:right; }
+  .receipt-row .r-label { font-size:.65rem; color:var(--text-muted); font-weight:600; min-width:28px; }
+
+  .add-receipt-btn { font-size:.75rem; color:var(--accent); font-weight:600; background:none; border:1px dashed var(--border); border-radius:8px; padding:6px 12px; cursor:pointer; margin-top:6px; width:100%; font-family:'Readex Pro',sans-serif; }
+  .add-receipt-btn:active { background:var(--accent-bg); }
+
+  .env-actions { display:flex; justify-content:space-between; align-items:center; padding:0 14px 12px; }
+
+  .empty-state { text-align:center; padding:48px 20px; color:var(--text-muted); }
+  .empty-state .e-icon { font-size:44px; margin-bottom:12px; }
+  .empty-state p { font-size:.88rem; line-height:1.6; }
+
+  .fab { position:fixed; bottom:calc(20px + var(--safe-bottom)); left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; border:none; font-family:'Readex Pro',sans-serif; font-size:.9rem; font-weight:700; padding:14px 28px; border-radius:50px; box-shadow:0 6px 24px rgba(122,92,30,.35); cursor:pointer; z-index:100; display:flex; align-items:center; gap:8px; }
+  .fab:active { transform:translateX(-50%) scale(.95); }
+
+  .lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:999; align-items:center; justify-content:center; padding:16px; }
+  .lightbox.active { display:flex; }
+  .lightbox img { max-width:100%; max-height:90dvh; border-radius:12px; }
+  .lightbox-close { position:absolute; top:16px; left:16px; width:40px; height:40px; border-radius:50%; border:none; background:rgba(255,255,255,.15); color:#fff; font-size:20px; cursor:pointer; }
+
+  .toast { position:fixed; bottom:calc(80px + var(--safe-bottom)); left:50%; transform:translateX(-50%); padding:10px 24px; border-radius:10px; font-size:.82rem; font-weight:600; z-index:200; box-shadow:0 4px 20px rgba(0,0,0,.2); animation:toastIn .3s ease; }
+  .toast.success { background:var(--green); color:#fff; }
+  .toast.error { background:var(--red); color:#fff; }
+  @keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(12px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+  .sync-dot { width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block; box-shadow:0 0 6px rgba(29,122,71,.4); }
+  .sync-dot.offline { background:var(--red); }
+  .sync-dot.syncing { background:var(--accent); animation:pulse 1s ease infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  .splash { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:1000; transition:opacity .3s; }
+  .splash.hide { opacity:0; pointer-events:none; }
+  .splash .logo-big { width:56px; height:56px; background:linear-gradient(135deg,var(--accent),#c4a040); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:16px; }
+  .splash p { color:var(--text-muted); font-size:.85rem; }
+  .splash .loader { width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; margin-top:16px; }
+
+  .error-banner { display:none; background:var(--red-bg); color:var(--red); padding:12px 16px; text-align:center; font-size:.82rem; font-weight:600; }
+  .error-banner.show { display:block; }
+
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:800; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.active { display:flex; }
+  .modal { background:var(--surface); border-radius:20px; padding:28px 22px; width:100%; max-width:400px; }
+  .modal h2 { font-size:1.1rem; margin-bottom:6px; }
+  .modal .sub { color:var(--text-muted); font-size:.78rem; margin-bottom:20px; line-height:1.6; }
+  .modal input { width:100%; font-family:'JetBrains Mono',monospace; font-size:.78rem; padding:11px 14px; border:1.5px solid var(--border); border-radius:10px; background:var(--surface2); color:var(--text); outline:none; direction:ltr; margin-bottom:14px; }
+  .modal input:focus { border-color:var(--accent); }
+  .modal-btns { display:flex; gap:10px; }
+  .modal-btns .btn { flex:1; }
+
+  .sql-info { margin-top:20px; }
+  .sql-info summary { font-size:.78rem; color:var(--text-dim); cursor:pointer; font-weight:600; }
+  .sql-block { background:#1c1710; color:#e8e0d4; padding:12px; border-radius:10px; margin:8px 0; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:.68rem; line-height:1.7; direction:ltr; text-align:left; white-space:pre; }
 </style>
 </head>
 <body>
 
-<div class="splash" id="splash">
-  <div class="logo-big">📋</div>
-  <p>جاري التحميل...</p>
-  <div class="loader"></div>
-</div>
-
-<div class="error-banner" id="errorBanner">
-  <span id="errorMsg">❌ خطأ</span> — <a href="javascript:loadReceipts()" style="color:var(--red);text-decoration:underline">إعادة المحاولة</a>
-</div>
+<div class="splash" id="splash"><div class="logo-big">📋</div><p>جاري التحميل...</p><div class="loader"></div></div>
+<div class="error-banner" id="errorBanner"><span id="errorMsg">❌ خطأ</span> — <a href="javascript:loadEnvelopes()" style="color:var(--red);text-decoration:underline">إعادة المحاولة</a></div>
 
 <div class="app-header">
   <div class="app-header-right">
@@ -474,475 +181,465 @@
   </div>
   <div class="app-header-left">
     <button class="btn btn-ghost btn-icon" onclick="exportCSV()" title="تصدير">📥</button>
-    <button class="btn btn-ghost btn-icon" onclick="loadReceipts()" title="تحديث">🔄</button>
-    <button class="btn btn-ghost btn-icon" onclick="showApiKeyModal()" title="مفتاح AI">🤖</button>
+    <button class="btn btn-ghost btn-icon" onclick="loadEnvelopes()" title="تحديث">🔄</button>
+    <button class="btn btn-ghost btn-icon" onclick="showApiKeyModal()" title="AI">🤖</button>
   </div>
 </div>
 
 <div class="app-body">
 
-  <!-- AI Scan Section -->
   <div class="scan-section">
-    <div class="scan-header">
-      <span>🤖 مسح ذكي — صوّر الورقة والبرنامج يقرأها</span>
-    </div>
+    <div class="scan-header">🤖 صوّر الظرف — يقرأ الوصولات والمبلغ والتاريخ تلقائياً</div>
     <div class="scan-body">
       <div class="scan-upload-area" id="scanUploadArea" onclick="document.getElementById('scanInput').click()">
         <div class="icon">📷</div>
-        <div class="main-text">التقط صورة أو ارفع من المعرض</div>
-        <p>الذكاء الاصطناعي يقرأ الأرقام ويملأ الجدول تلقائياً</p>
+        <div class="main-text">التقط صورة الظرف</div>
+        <p>يقرأ التاريخ، أرقام الوصولات، المبالغ، والمبلغ الكلي في المربع</p>
       </div>
       <input type="file" class="scan-input" id="scanInput" accept="image/*" capture="environment">
-
       <div class="scan-preview" id="scanPreview">
         <img id="scanImg" src="" onclick="openLightbox(this.src)">
         <div class="scan-actions">
-          <button class="btn btn-primary" onclick="scanImage()">🤖 تحليل الصورة</button>
-          <button class="btn btn-ghost" onclick="resetScan()">✕ إلغاء</button>
+          <button class="btn btn-primary" onclick="scanImage()">🤖 تحليل</button>
+          <button class="btn btn-ghost" onclick="resetScan()">✕</button>
         </div>
       </div>
-
-      <div class="scanning-overlay" id="scanningOverlay">
-        <div class="scan-anim"></div>
-        <p>جاري القراءة بالذكاء الاصطناعي...</p>
-        <div class="sub">يقرأ أرقام الوصولات والمبالغ</div>
-      </div>
-
+      <div class="scanning-overlay" id="scanningOverlay"><div class="scan-anim"></div><p>جاري القراءة...</p><div class="sub">يقرأ التاريخ والوصولات والمبلغ الكلي</div></div>
       <div class="scan-result" id="scanResult"></div>
     </div>
   </div>
 
-  <!-- Stats -->
   <div class="stats-grid">
-    <div class="stat-box">
-      <div class="label">الوصولات</div>
-      <div class="val c-accent" id="sCount">0</div>
-    </div>
-    <div class="stat-box">
-      <div class="label">المجموع</div>
-      <div class="val c-green" id="sTotal">0</div>
-    </div>
-    <div class="stat-box">
-      <div class="label">كاش</div>
-      <div class="val c-blue" id="sCash">0</div>
-    </div>
-    <div class="stat-box">
-      <div class="label">آجل</div>
-      <div class="val c-red" id="sCredit">0</div>
-    </div>
+    <div class="stat-box"><div class="label">الظروف</div><div class="val c-accent" id="sCount">0</div></div>
+    <div class="stat-box"><div class="label">المجموع</div><div class="val c-green" id="sTotal">0</div></div>
+    <div class="stat-box"><div class="label">تطابق ✓</div><div class="val c-blue" id="sMatch">0</div></div>
+    <div class="stat-box"><div class="label">خطأ ✕</div><div class="val c-red" id="sMismatch">0</div></div>
   </div>
 
-  <div class="search-bar">
-    <span class="s-icon">🔍</span>
-    <input type="text" placeholder="بحث..." id="searchInput" oninput="renderCards()">
-  </div>
+  <div class="search-bar"><span class="s-icon">🔍</span><input type="text" placeholder="بحث..." id="searchInput" oninput="renderEnvelopes()"></div>
 
-  <div class="cards-list" id="cardsList"></div>
+  <div id="envelopesList"></div>
   <div class="empty-state" id="emptyState" style="display:none">
     <div class="e-icon">📝</div>
-    <p>لا توجد وصولات<br>صوّر ورقة أو اضغط الزر لإضافة يدوياً</p>
+    <p>لا توجد ظروف<br>صوّر ظرف أو اضف يدوياً</p>
   </div>
 </div>
 
-<button class="fab" onclick="addReceipt()">＋ وصل يدوي</button>
+<button class="fab" onclick="addEnvelopeManual()">＋ ظرف يدوي</button>
 
-<!-- Lightbox -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
   <img id="lightboxImg" src="">
 </div>
 
-<!-- API Key Modal -->
 <div class="modal-overlay" id="apiKeyModal">
   <div class="modal">
-    <h2>🤖 مفتاح الذكاء الاصطناعي</h2>
-    <div class="sub">
-      لتفعيل القراءة التلقائية، ادخل مفتاح Anthropic API الخاص بك.
-      <br>يُحفظ في متصفحك فقط ولا يُرسل لأي مكان.
-      <br><br>
-      <span style="direction:ltr;display:inline-block">console.anthropic.com → API Keys</span>
-    </div>
+    <h2>🤖 مفتاح AI</h2>
+    <div class="sub">لتفعيل القراءة التلقائية، ادخل مفتاح Anthropic API.<br>يُحفظ في متصفحك فقط.<br><span style="direction:ltr;display:inline-block">console.anthropic.com → API Keys</span></div>
     <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
     <div class="modal-btns">
       <button class="btn btn-primary" onclick="saveApiKey()">حفظ</button>
       <button class="btn btn-ghost" onclick="closeApiKeyModal()">إلغاء</button>
     </div>
+    <div class="sql-info">
+      <summary style="font-size:.78rem;color:var(--text-dim);font-weight:600">📖 SQL للجدول الجديد (إذا تحتاج تحديث)</summary>
+      <div class="sql-block">-- Drop old table if exists
+DROP TABLE IF EXISTS envelopes;
+
+CREATE TABLE envelopes (
+  id BIGSERIAL PRIMARY KEY,
+  envelope_date DATE DEFAULT CURRENT_DATE,
+  declared_total NUMERIC DEFAULT 0,
+  receipts JSONB DEFAULT '[]',
+  notes TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE envelopes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all" ON envelopes
+  FOR ALL USING (true) WITH CHECK (true);</div>
+    </div>
   </div>
 </div>
 
 <script>
-  // ═══════════════════════════════════════
-  //  CONFIG
-  // ═══════════════════════════════════════
-  const SUPABASE_URL = 'https://njvcpytgxnhqkbnntnbn.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_3w0Ez-vr5RGTnXfo9nCmqg_YdPIU2y9';
+const SUPABASE_URL = 'https://njvcpytgxnhqkbnntnbn.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_3w0Ez-vr5RGTnXfo9nCmqg_YdPIU2y9';
 
-  let receipts = [];
-  let scanBase64 = null;
+let envelopes = [];
+let scanBase64 = null;
 
-  // ─── INIT ───
-  loadReceipts();
+loadEnvelopes();
 
-  // ─── API KEY ───
-  function getApiKey() { return localStorage.getItem('anthropic_api_key') || ''; }
+function getApiKey() { return localStorage.getItem('anthropic_api_key') || ''; }
+function showApiKeyModal() { document.getElementById('apiKeyInput').value = getApiKey(); document.getElementById('apiKeyModal').classList.add('active'); }
+function closeApiKeyModal() { document.getElementById('apiKeyModal').classList.remove('active'); }
+function saveApiKey() { const k = document.getElementById('apiKeyInput').value.trim(); if(k) localStorage.setItem('anthropic_api_key',k); else localStorage.removeItem('anthropic_api_key'); closeApiKeyModal(); showToast('تم حفظ المفتاح ✓','success'); }
 
-  function showApiKeyModal() {
-    document.getElementById('apiKeyInput').value = getApiKey();
-    document.getElementById('apiKeyModal').classList.add('active');
+function hdrs(prefer) {
+  const h = { 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' };
+  if(prefer) h['Prefer'] = prefer;
+  return h;
+}
+
+function syncState(s) { document.getElementById('syncDot').className = 'sync-dot' + (s==='sync'?' syncing':s==='err'?' offline':''); }
+
+// ─── LOAD ───
+async function loadEnvelopes() {
+  syncState('sync');
+  document.getElementById('errorBanner').classList.remove('show');
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/envelopes?order=created_at.desc`, { headers:hdrs() });
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    envelopes = await r.json();
+    envelopes.forEach(e => { if(typeof e.receipts === 'string') e.receipts = JSON.parse(e.receipts); });
+    syncState('ok'); renderEnvelopes(); updateStats();
+  } catch(e) {
+    syncState('err');
+    document.getElementById('errorMsg').textContent = `❌ ${e.message}`;
+    document.getElementById('errorBanner').classList.add('show');
+  } finally {
+    const sp = document.getElementById('splash');
+    if(sp) { sp.classList.add('hide'); setTimeout(()=>sp.remove(),400); }
   }
+}
 
-  function closeApiKeyModal() {
-    document.getElementById('apiKeyModal').classList.remove('active');
-  }
-
-  function saveApiKey() {
-    const key = document.getElementById('apiKeyInput').value.trim();
-    if (key) localStorage.setItem('anthropic_api_key', key);
-    else localStorage.removeItem('anthropic_api_key');
-    closeApiKeyModal();
-    showToast('تم حفظ المفتاح ✓', 'success');
-  }
-
-  // ─── SUPABASE ───
-  function hdrs(prefer) {
-    const h = {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Content-Type': 'application/json'
+// ─── ADD ENVELOPE ───
+async function addEnvelope(data) {
+  syncState('sync');
+  try {
+    const body = {
+      envelope_date: data.date || new Date().toISOString().split('T')[0],
+      declared_total: data.declared_total || 0,
+      receipts: JSON.stringify(data.receipts || []),
+      notes: data.notes || ''
     };
-    if (prefer) h['Prefer'] = prefer;
-    return h;
-  }
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/envelopes`, {
+      method:'POST', headers:hdrs('return=representation'), body:JSON.stringify(body)
+    });
+    if(!r.ok) throw 0;
+    const res = await r.json();
+    res[0].receipts = typeof res[0].receipts === 'string' ? JSON.parse(res[0].receipts) : res[0].receipts;
+    envelopes.unshift(res[0]);
+    syncState('ok'); renderEnvelopes(); updateStats();
+    return res[0];
+  } catch(e) { syncState('err'); showToast('❌ خطأ','error'); return null; }
+}
 
-  function syncState(s) {
-    const d = document.getElementById('syncDot');
-    d.className = 'sync-dot' + (s === 'sync' ? ' syncing' : s === 'err' ? ' offline' : '');
-  }
+async function addEnvelopeManual() {
+  await addEnvelope({ date: new Date().toISOString().split('T')[0], declared_total:0, receipts:[{num:'',amount:0}], notes:'' });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
-  // ─── LOAD ───
-  async function loadReceipts() {
-    syncState('sync');
-    document.getElementById('errorBanner').classList.remove('show');
-    try {
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/receipts?order=created_at.desc`, { headers: hdrs() });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      receipts = await r.json();
-      syncState('ok'); renderCards(); updateStats();
-    } catch(e) {
-      syncState('err');
-      document.getElementById('errorMsg').textContent = `❌ ${e.message || 'Failed to fetch'}`;
-      document.getElementById('errorBanner').classList.add('show');
-    } finally {
-      const sp = document.getElementById('splash');
-      if (sp) { sp.classList.add('hide'); setTimeout(() => sp.remove(), 400); }
-    }
-  }
+// ─── UPDATE ENVELOPE ───
+let saveTimers = {};
+function updateEnvelope(id, field, value) {
+  const e = envelopes.find(x=>x.id===id);
+  if(e) e[field] = value;
+  renderEnvelopes(); updateStats();
+  clearTimeout(saveTimers[id]);
+  saveTimers[id] = setTimeout(()=>pushEnvelope(id), 700);
+}
 
-  // ─── ADD (single) ───
-  async function addReceipt(data) {
-    syncState('sync');
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const body = {
-        receipt_number: (data && data.receipt_number) || '',
-        amount: (data && data.amount) || 0,
-        payment_method: (data && data.payment_method) || 'كاش',
-        receipt_date: (data && data.receipt_date) || today,
-        notes: (data && data.notes) || ''
-      };
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/receipts`, {
-        method: 'POST', headers: hdrs('return=representation'),
-        body: JSON.stringify(body)
-      });
-      if (!r.ok) throw 0;
-      const res = await r.json();
-      receipts.unshift(res[0]);
-      syncState('ok'); renderCards(); updateStats();
-      return res[0];
-    } catch(e) { syncState('err'); showToast('❌ خطأ في الإضافة', 'error'); return null; }
-  }
+async function pushEnvelope(id) {
+  const e = envelopes.find(x=>x.id===id);
+  if(!e) return;
+  syncState('sync');
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/envelopes?id=eq.${id}`, {
+      method:'PATCH', headers:hdrs('return=minimal'),
+      body:JSON.stringify({
+        envelope_date: e.envelope_date,
+        declared_total: e.declared_total,
+        receipts: JSON.stringify(e.receipts),
+        notes: e.notes
+      })
+    });
+    if(!r.ok) throw 0;
+    syncState('ok');
+  } catch(e) { syncState('err'); }
+}
 
-  // ─── ADD BATCH (from AI scan) ───
-  async function addBatch(items) {
-    syncState('sync');
-    const today = new Date().toISOString().split('T')[0];
-    try {
-      const bodies = items.map(d => ({
-        receipt_number: d.receipt_number || '',
-        amount: d.amount || 0,
-        payment_method: d.payment_method || 'كاش',
-        receipt_date: d.receipt_date || today,
-        notes: d.notes || ''
-      }));
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/receipts`, {
-        method: 'POST', headers: hdrs('return=representation'),
-        body: JSON.stringify(bodies)
-      });
-      if (!r.ok) throw 0;
-      const res = await r.json();
-      receipts = [...res.reverse(), ...receipts];
-      syncState('ok'); renderCards(); updateStats();
-      return res;
-    } catch(e) { syncState('err'); showToast('❌ خطأ في الحفظ', 'error'); return null; }
-  }
+async function deleteEnvelope(id) {
+  if(!confirm('حذف هذا الظرف؟')) return;
+  syncState('sync');
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/envelopes?id=eq.${id}`, { method:'DELETE', headers:hdrs() });
+    if(!r.ok) throw 0;
+    envelopes = envelopes.filter(x=>x.id!==id);
+    syncState('ok'); renderEnvelopes(); updateStats();
+  } catch(e) { syncState('err'); }
+}
 
-  // ─── UPDATE ───
-  let saveTimers = {};
-  function updateField(id, field, value) {
-    const r = receipts.find(x => x.id === id);
-    if (r) r[field] = value;
-    updateStats();
-    clearTimeout(saveTimers[`${id}-${field}`]);
-    saveTimers[`${id}-${field}`] = setTimeout(() => pushUpdate(id, field, value), 600);
-  }
+// ─── RECEIPT HELPERS ───
+function addReceiptToEnvelope(envId) {
+  const e = envelopes.find(x=>x.id===envId);
+  if(!e) return;
+  e.receipts.push({num:'',amount:0,note:''});
+  updateEnvelope(envId,'receipts',e.receipts);
+}
 
-  async function pushUpdate(id, field, value) {
-    syncState('sync');
-    try {
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/receipts?id=eq.${id}`, {
-        method: 'PATCH', headers: hdrs('return=minimal'),
-        body: JSON.stringify({ [field]: value })
-      });
-      if (!r.ok) throw 0;
-      syncState('ok');
-    } catch(e) { syncState('err'); }
-  }
+function removeReceiptFromEnvelope(envId, idx) {
+  const e = envelopes.find(x=>x.id===envId);
+  if(!e) return;
+  e.receipts.splice(idx,1);
+  updateEnvelope(envId,'receipts',e.receipts);
+}
 
-  // ─── DELETE ───
-  async function deleteReceipt(id) {
-    if (!confirm('حذف هذا الوصل؟')) return;
-    syncState('sync');
-    try {
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/receipts?id=eq.${id}`, {
-        method: 'DELETE', headers: hdrs()
-      });
-      if (!r.ok) throw 0;
-      receipts = receipts.filter(x => x.id !== id);
-      syncState('ok'); renderCards(); updateStats();
-    } catch(e) { syncState('err'); showToast('❌ خطأ', 'error'); }
-  }
+function updateReceipt(envId, idx, field, value) {
+  const e = envelopes.find(x=>x.id===envId);
+  if(!e || !e.receipts[idx]) return;
+  e.receipts[idx][field] = value;
+  updateEnvelope(envId,'receipts',e.receipts);
+}
 
-  // ═══════════════════════════════════════
-  //  AI SCAN
-  // ═══════════════════════════════════════
-  document.getElementById('scanInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file || !file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      scanBase64 = ev.target.result.split(',')[1];
-      document.getElementById('scanImg').src = ev.target.result;
-      document.getElementById('scanUploadArea').style.display = 'none';
-      document.getElementById('scanPreview').style.display = 'block';
-      document.getElementById('scanResult').style.display = 'none';
-    };
-    reader.readAsDataURL(file);
-    this.value = '';
-  });
+function calcActual(env) {
+  return (env.receipts||[]).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+}
 
-  function resetScan() {
-    scanBase64 = null;
-    document.getElementById('scanUploadArea').style.display = 'block';
-    document.getElementById('scanPreview').style.display = 'none';
-    document.getElementById('scanningOverlay').classList.remove('active');
+// ═══════════════════════════════
+//  AI SCAN
+// ═══════════════════════════════
+document.getElementById('scanInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    scanBase64 = ev.target.result.split(',')[1];
+    document.getElementById('scanImg').src = ev.target.result;
+    document.getElementById('scanUploadArea').style.display = 'none';
+    document.getElementById('scanPreview').style.display = 'block';
     document.getElementById('scanResult').style.display = 'none';
-  }
+  };
+  reader.readAsDataURL(file);
+  this.value = '';
+});
 
-  async function scanImage() {
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      showApiKeyModal();
-      showToast('ادخل مفتاح AI أولاً', 'error');
-      return;
-    }
-    if (!scanBase64) return;
+function resetScan() {
+  scanBase64 = null;
+  document.getElementById('scanUploadArea').style.display = 'block';
+  document.getElementById('scanPreview').style.display = 'none';
+  document.getElementById('scanningOverlay').classList.remove('active');
+  document.getElementById('scanResult').style.display = 'none';
+}
 
-    document.getElementById('scanPreview').style.display = 'none';
-    const overlay = document.getElementById('scanningOverlay');
-    overlay.classList.add('active');
-    const resultEl = document.getElementById('scanResult');
+async function scanImage() {
+  const apiKey = getApiKey();
+  if(!apiKey) { showApiKeyModal(); return; }
+  if(!scanBase64) return;
 
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1500,
-          messages: [{
-            role: 'user',
-            content: [
-              {
-                type: 'image',
-                source: { type: 'base64', media_type: 'image/jpeg', data: scanBase64 }
-              },
-              {
-                type: 'text',
-                text: `You are an expert at reading handwritten Arabic/Kurdish financial notes. Extract ALL receipt entries from this image.
+  document.getElementById('scanPreview').style.display = 'none';
+  document.getElementById('scanningOverlay').classList.add('active');
+  const resultEl = document.getElementById('scanResult');
 
-Each entry typically has:
-- receipt_number (رقم الوصل — a number like 930, 672, 673, 664)
-- amount (المبلغ المدفوع — the cash amount paid)
-- payment_method (usually كاش)
-- notes (any extra info like "ستابر جاكيت" etc.)
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        messages:[{
+          role:'user',
+          content:[
+            { type:'image', source:{ type:'base64', media_type:'image/jpeg', data:scanBase64 } },
+            { type:'text', text:`You read handwritten Arabic/Kurdish receipt envelopes. Extract:
 
-Look for patterns like:
-- "وصل 930 ← 400 كاش" means receipt 930, paid 400 cash
-- Numbers in boxes are usually totals
-- Lines with + or - are adjustments
+1. DATE written on the paper (any format). Convert to YYYY-MM-DD.
+2. The BOXED/SQUARED NUMBER at the top — this is the declared cash total for the envelope.
+3. ALL receipt entries: each has a receipt number (وصل) and amount paid.
 
-Respond ONLY with valid JSON array, no markdown, no backticks:
-[
-  {"receipt_number": "930", "amount": 400, "payment_method": "كاش", "notes": ""},
-  {"receipt_number": "672", "amount": 200, "payment_method": "كاش", "notes": ""}
-]
+Patterns:
+- "وصل 930 ← 400 كاش" = receipt 930, amount 400
+- A boxed number like [855] with كاش = declared total is 855
+- Lines with + or - are adjustments, put them in notes
 
-Extract every receipt line. If there are totals or summary numbers (like a boxed number), add them as a separate entry with notes explaining it.`
-              }
-            ]
-          }]
-        })
-      });
+Respond ONLY with valid JSON, no markdown:
+{
+  "date": "2025-03-31",
+  "declared_total": 855,
+  "receipts": [
+    {"num": "930", "amount": 400, "note": ""},
+    {"num": "672", "amount": 200, "note": ""}
+  ],
+  "notes": "any extra notes like adjustments"
+}
 
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error?.message || `HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
-      const clean = text.replace(/```json|```/g, '').trim();
-      const items = JSON.parse(clean);
-
-      if (!Array.isArray(items) || items.length === 0) {
-        throw new Error('لم يتم العثور على وصولات');
-      }
-
-      // Save to Supabase
-      const saved = await addBatch(items);
-
-      overlay.classList.remove('active');
-      resultEl.className = 'scan-result success';
-      resultEl.textContent = `✅ تم قراءة ${items.length} وصل وحفظها — يمكنك تعديلها بالأسفل`;
-      resultEl.style.display = 'block';
-
-      // Show upload area again for next scan
-      document.getElementById('scanUploadArea').style.display = 'block';
-      scanBase64 = null;
-
-      // Scroll to cards
-      setTimeout(() => {
-        document.getElementById('cardsList').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 500);
-
-    } catch(e) {
-      overlay.classList.remove('active');
-      document.getElementById('scanPreview').style.display = 'block';
-      resultEl.className = 'scan-result error';
-      resultEl.textContent = `❌ ${e.message}`;
-      resultEl.style.display = 'block';
-      console.error('Scan error:', e);
-    }
-  }
-
-  // ═══════════════════════════════════════
-  //  RENDER
-  // ═══════════════════════════════════════
-  function renderCards() {
-    const term = (document.getElementById('searchInput').value || '').toLowerCase();
-    const filtered = receipts.filter(r => {
-      if (!term) return true;
-      return `${r.receipt_number} ${r.amount} ${r.notes} ${r.payment_method}`.toLowerCase().includes(term);
+Rules:
+- date in YYYY-MM-DD. If not found, use null.
+- declared_total is the boxed number. If not found, use 0.
+- Only extract actual receipt lines with وصل numbers.
+- Adjustments (like +30 ستابر جاكيت) go in the notes field.` }
+          ]
+        }]
+      })
     });
 
-    const list = document.getElementById('cardsList');
-    const empty = document.getElementById('emptyState');
+    if(!response.ok) { const err = await response.json().catch(()=>({})); throw new Error(err.error?.message || `HTTP ${response.status}`); }
 
-    if (!filtered.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
-    empty.style.display = 'none';
+    const data = await response.json();
+    const text = data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
 
-    const header = `<div class="row-header">
-      <span>الوصل</span><span>المبلغ</span><span>الدفع</span><span>ملاحظات</span><span></span>
-    </div>`;
+    const envData = {
+      date: parsed.date || null,
+      declared_total: parsed.declared_total || 0,
+      receipts: (parsed.receipts || []).map(r=>({num:r.num||'',amount:r.amount||0,note:r.note||''})),
+      notes: parsed.notes || ''
+    };
 
-    const rows = filtered.map(r => `
-      <div class="receipt-row">
-        <input class="r-num" type="text" value="${esc(r.receipt_number)}" placeholder="#"
-          oninput="updateField(${r.id},'receipt_number',this.value)"
-          inputmode="numeric">
-        <input class="r-amt" type="number" value="${r.amount||''}" placeholder="0"
-          oninput="updateField(${r.id},'amount',parseFloat(this.value)||0)"
-          inputmode="decimal">
-        <select class="r-method" onchange="updateField(${r.id},'payment_method',this.value)">
-          <option value="كاش" ${r.payment_method==='كاش'?'selected':''}>كاش</option>
-          <option value="آجل" ${r.payment_method==='آجل'?'selected':''}>آجل</option>
-          <option value="تحويل" ${r.payment_method==='تحويل'?'selected':''}>تحويل</option>
-          <option value="شيك" ${r.payment_method==='شيك'?'selected':''}>شيك</option>
-        </select>
-        <input class="r-notes" type="text" value="${esc(r.notes)}" placeholder="ملاحظات..."
-          oninput="updateField(${r.id},'notes',this.value)">
-        <button class="r-del" onclick="deleteReceipt(${r.id})">🗑</button>
+    if(!envData.receipts.length) throw new Error('لم يتم العثور على وصولات');
+
+    const saved = await addEnvelope(envData);
+    const actual = calcActual(envData);
+    const match = actual === envData.declared_total;
+
+    document.getElementById('scanningOverlay').classList.remove('active');
+    resultEl.className = 'scan-result ' + (match ? 'success' : 'error');
+    resultEl.textContent = match
+      ? `✅ تم قراءة ${envData.receipts.length} وصل — المبلغ متطابق (${envData.declared_total})`
+      : `⚠️ تم قراءة ${envData.receipts.length} وصل — المبلغ غير متطابق! المعلن: ${envData.declared_total} ≠ الفعلي: ${actual}`;
+    resultEl.style.display = 'block';
+
+    document.getElementById('scanUploadArea').style.display = 'block';
+    scanBase64 = null;
+    setTimeout(()=> document.getElementById('envelopesList').scrollIntoView({behavior:'smooth'}), 500);
+
+  } catch(e) {
+    document.getElementById('scanningOverlay').classList.remove('active');
+    document.getElementById('scanPreview').style.display = 'block';
+    resultEl.className = 'scan-result error';
+    resultEl.textContent = `❌ ${e.message}`;
+    resultEl.style.display = 'block';
+  }
+}
+
+// ═══════════════════════════════
+//  RENDER
+// ═══════════════════════════════
+function renderEnvelopes() {
+  const term = (document.getElementById('searchInput').value||'').toLowerCase();
+  const filtered = envelopes.filter(e => {
+    if(!term) return true;
+    const rText = (e.receipts||[]).map(r=>`${r.num} ${r.amount} ${r.note}`).join(' ');
+    return `${e.envelope_date} ${e.declared_total} ${e.notes} ${rText}`.toLowerCase().includes(term);
+  });
+
+  const list = document.getElementById('envelopesList');
+  const empty = document.getElementById('emptyState');
+
+  if(!filtered.length) { list.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+
+  list.innerHTML = filtered.map(e => {
+    const actual = calcActual(e);
+    const declared = parseFloat(e.declared_total)||0;
+    const match = actual === declared;
+    const receipts = e.receipts||[];
+
+    return `
+    <div class="envelope-card ${match?'':'mismatch'}">
+      <div class="env-top">
+        <div style="display:flex;align-items:center;gap:8px">
+          ${match ? '<span class="match-badge">✓ متطابق</span>' : '<span class="mismatch-badge">✕ غير متطابق</span>'}
+          <span class="env-date">${e.envelope_date||'—'}</span>
+        </div>
+        <div class="env-totals">
+          <div class="env-total-box">
+            <div class="t-label">المعلن</div>
+            <div class="t-val ${match?'ok':'bad'}">${declared.toLocaleString()}</div>
+          </div>
+          <span class="env-vs">${match?'=':'≠'}</span>
+          <div class="env-total-box">
+            <div class="t-label">الفعلي</div>
+            <div class="t-val ${match?'ok':'bad'}">${actual.toLocaleString()}</div>
+          </div>
+        </div>
       </div>
-    `).join('');
 
-    list.innerHTML = header + rows;
-  }
+      <div class="env-fields">
+        <div class="env-field">
+          <label>التاريخ</label>
+          <input class="mono" type="date" value="${e.envelope_date||''}" onchange="updateEnvelope(${e.id},'envelope_date',this.value)">
+        </div>
+        <div class="env-field">
+          <label>المبلغ المعلن (المربع)</label>
+          <input class="mono" type="number" value="${declared||''}" placeholder="0"
+            oninput="updateEnvelope(${e.id},'declared_total',parseFloat(this.value)||0)" inputmode="decimal">
+        </div>
+        <div class="env-field full">
+          <label>ملاحظات</label>
+          <input type="text" value="${esc(e.notes)}" placeholder="..." oninput="updateEnvelope(${e.id},'notes',this.value)">
+        </div>
+      </div>
 
-  function updHead() {}
-  function updAmt() {}
+      <div class="env-receipts">
+        <div class="env-receipts-header">الوصولات (${receipts.length})</div>
+        ${receipts.map((r,i)=>`
+          <div class="receipt-row">
+            <span class="r-label">#${i+1}</span>
+            <input class="r-num" type="text" value="${esc(r.num)}" placeholder="رقم"
+              oninput="updateReceipt(${e.id},${i},'num',this.value)" inputmode="numeric">
+            <input class="r-amt" type="number" value="${r.amount||''}" placeholder="مبلغ"
+              oninput="updateReceipt(${e.id},${i},'amount',parseFloat(this.value)||0)" inputmode="decimal">
+            <input class="r-note" type="text" value="${esc(r.note||'')}" placeholder="ملاحظة"
+              oninput="updateReceipt(${e.id},${i},'note',this.value)">
+            <button class="btn-danger-sm" onclick="removeReceiptFromEnvelope(${e.id},${i})" style="flex-shrink:0">✕</button>
+          </div>
+        `).join('')}
+        <button class="add-receipt-btn" onclick="addReceiptToEnvelope(${e.id})">＋ إضافة وصل</button>
+      </div>
 
-  function esc(s) { return s == null ? '' : String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
-  function fmt(n) { return (parseFloat(n)||0).toLocaleString(); }
+      <div class="env-actions">
+        <span style="font-size:.72rem;color:var(--text-muted)">${receipts.length} وصل</span>
+        <button class="btn-danger-sm" onclick="deleteEnvelope(${e.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-  function updateStats() {
-    const total = receipts.reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
-    const cash = receipts.filter(r => r.payment_method==='كاش').reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
-    const credit = receipts.filter(r => r.payment_method==='آجل').reduce((s,r) => s + (parseFloat(r.amount)||0), 0);
-    document.getElementById('sCount').textContent = receipts.length;
-    document.getElementById('sTotal').textContent = total.toLocaleString();
-    document.getElementById('sCash').textContent = cash.toLocaleString();
-    document.getElementById('sCredit').textContent = credit.toLocaleString();
-  }
+function esc(s) { return s==null?'':String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
-  // ─── LIGHTBOX ───
-  function openLightbox(src) {
-    document.getElementById('lightboxImg').src = src;
-    document.getElementById('lightbox').classList.add('active');
-  }
+function updateStats() {
+  const total = envelopes.reduce((s,e)=>s+calcActual(e),0);
+  const matched = envelopes.filter(e=>calcActual(e)===(parseFloat(e.declared_total)||0)).length;
+  document.getElementById('sCount').textContent = envelopes.length;
+  document.getElementById('sTotal').textContent = total.toLocaleString();
+  document.getElementById('sMatch').textContent = matched;
+  document.getElementById('sMismatch').textContent = envelopes.length - matched;
+}
 
-  function closeLightbox() {
-    document.getElementById('lightbox').classList.remove('active');
-  }
+function openLightbox(src) { document.getElementById('lightboxImg').src=src; document.getElementById('lightbox').classList.add('active'); }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); });
 
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+function exportCSV() {
+  if(!envelopes.length) return;
+  const BOM='\uFEFF';
+  const h='التاريخ,المبلغ المعلن,المبلغ الفعلي,متطابق,الوصولات,ملاحظات\n';
+  const csv = h + envelopes.map(e=>{
+    const actual=calcActual(e);
+    const rList=(e.receipts||[]).map(r=>`${r.num}:${r.amount}`).join(' | ');
+    return `${e.envelope_date},${e.declared_total},${actual},${actual===(parseFloat(e.declared_total)||0)?'نعم':'لا'},"${rList}","${(e.notes||'').replace(/"/g,'""')}"`;
+  }).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([BOM+csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`envelopes_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
 
-  // ─── EXPORT ───
-  function exportCSV() {
-    if (!receipts.length) return;
-    const BOM = '\uFEFF';
-    const h = 'رقم الوصل,المبلغ,طريقة الدفع,التاريخ,ملاحظات\n';
-    const csv = h + receipts.map(r =>
-      `${r.receipt_number},${r.amount},${r.payment_method},${r.receipt_date},"${(r.notes||'').replace(/"/g,'""')}"`
-    ).join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([BOM+csv], { type: 'text/csv;charset=utf-8' }));
-    a.download = `receipts_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-  }
-
-  // ─── TOAST ───
-  function showToast(msg, type) {
-    const t = document.createElement('div');
-    t.className = `toast ${type || 'success'}`;
-    t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2500);
-  }
+function showToast(msg,type) {
+  const t=document.createElement('div');
+  t.className=`toast ${type||'success'}`;
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
+}
 </script>
 </body>
 </html>
