@@ -166,10 +166,74 @@
   .sql-info { margin-top:20px; }
   .sql-info summary { font-size:.78rem; color:var(--text-dim); cursor:pointer; font-weight:600; }
   .sql-block { background:#1c1710; color:#e8e0d4; padding:12px; border-radius:10px; margin:8px 0; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:.68rem; line-height:1.7; direction:ltr; text-align:left; white-space:pre; }
+
+  /* ─── Login Screen ─── */
+  .login-screen {
+    position:fixed; inset:0; background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px 16px; z-index:2000;
+  }
+  .login-screen.hidden { display:none; }
+
+  .login-card {
+    background:var(--surface); border-radius:20px;
+    padding:36px 24px; width:100%; max-width:360px;
+    box-shadow:0 8px 40px rgba(0,0,0,.08);
+    text-align:center;
+  }
+  .login-card .logo-login {
+    width:64px; height:64px;
+    background:linear-gradient(135deg,var(--accent),#c4a040);
+    border-radius:18px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:30px; margin:0 auto 20px;
+    box-shadow:0 4px 16px rgba(122,92,30,.25);
+  }
+  .login-card h1 { font-size:1.3rem; margin-bottom:6px; }
+  .login-card .sub { color:var(--text-muted); font-size:.82rem; margin-bottom:24px; }
+  .login-card input {
+    width:100%; font-family:'JetBrains Mono',monospace;
+    font-size:1.1rem; padding:14px 16px;
+    border:2px solid var(--border); border-radius:12px;
+    background:var(--surface2); color:var(--text);
+    outline:none; text-align:center; letter-spacing:4px;
+    margin-bottom:16px;
+  }
+  .login-card input:focus { border-color:var(--accent); }
+  .login-card input.shake {
+    animation: shake .4s ease;
+    border-color:var(--red);
+  }
+  @keyframes shake {
+    0%,100% { transform:translateX(0); }
+    20%,60% { transform:translateX(-8px); }
+    40%,80% { transform:translateX(8px); }
+  }
+  .login-error {
+    color:var(--red); font-size:.82rem; font-weight:600;
+    margin-bottom:12px; display:none;
+  }
+  .login-error.show { display:block; }
 </style>
 </head>
 <body>
 
+<!-- ════════ LOGIN SCREEN ════════ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="logo-login">📋</div>
+    <h1>سجل الوصولات</h1>
+    <div class="sub">ادخل كلمة المرور للمتابعة</div>
+    <div class="login-error" id="loginError">كلمة المرور غير صحيحة</div>
+    <input type="password" id="loginPassword" placeholder="••••••" 
+      inputmode="numeric" autocomplete="off"
+      onkeydown="if(event.key==='Enter')checkLogin()">
+    <button class="btn btn-primary" style="width:100%" onclick="checkLogin()">دخول</button>
+  </div>
+</div>
+
+<!-- ════════ APP (hidden until login) ════════ -->
+<div id="appWrapper" style="display:none">
 <div class="splash" id="splash"><div class="logo-big">📋</div><p>جاري التحميل...</p><div class="loader"></div></div>
 <div class="error-banner" id="errorBanner"><span id="errorMsg">❌ خطأ</span> — <a href="javascript:loadEnvelopes()" style="color:var(--red);text-decoration:underline">إعادة المحاولة</a></div>
 
@@ -268,7 +332,48 @@ CREATE POLICY "Allow all" ON envelopes
   </div>
 </div>
 
+</div><!-- close appWrapper -->
+
 <script>
+// ═══════════════════════════════
+//  PASSWORD — hashed for security
+//  To change password: open browser console, type:
+//  crypto.subtle.digest('SHA-256', new TextEncoder().encode('YOUR_NEW_PASSWORD')).then(h=>console.log(Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')))
+//  Then replace the hash below
+// ═══════════════════════════════
+const APP_PASSWORD_HASH = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'; // hash of '1234'
+
+async function hashPassword(pwd) {
+  const data = new TextEncoder().encode(pwd);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ─── LOGIN ───
+async function checkLogin() {
+  const input = document.getElementById('loginPassword');
+  const error = document.getElementById('loginError');
+  const hashed = await hashPassword(input.value);
+
+  if (hashed === APP_PASSWORD_HASH) {
+    sessionStorage.setItem('logged_in', 'true');
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appWrapper').style.display = 'block';
+    loadEnvelopes();
+  } else {
+    error.classList.add('show');
+    input.classList.add('shake');
+    input.value = '';
+    setTimeout(() => input.classList.remove('shake'), 500);
+  }
+}
+
+// Check if already logged in this session
+if (sessionStorage.getItem('logged_in') === 'true') {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appWrapper').style.display = 'block';
+}
+
 const SUPABASE_URL = 'https://njvcpytgxnhqkbnntnbn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_3w0Ez-vr5RGTnXfo9nCmqg_YdPIU2y9';
 
@@ -278,7 +383,7 @@ const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxaeOZzTjRJM2hlvUEyo
 let envelopes = [];
 let scanBase64 = null;
 
-loadEnvelopes();
+// Load is triggered by login check above
 
 function getApiKey() { return localStorage.getItem('anthropic_api_key') || ''; }
 function showApiKeyModal() {
