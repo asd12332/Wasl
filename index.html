@@ -252,87 +252,86 @@
     color: var(--text-muted); pointer-events: none;
   }
 
-  /* ─── Receipt Cards ─── */
-  .cards-list { display: flex; flex-direction: column; gap: 10px; }
+  /* ─── Compact Receipt Rows ─── */
+  .cards-list { display: flex; flex-direction: column; gap: 6px; }
 
-  .receipt-card {
+  .receipt-row {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); overflow: hidden;
-  }
-  .receipt-card.new-card { animation: cardIn 0.4s ease; }
-
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    border-radius: 10px; padding: 8px 10px;
+    display: flex; align-items: center; gap: 6px;
+    transition: box-shadow 0.15s;
   }
 
-  .receipt-card:focus-within { box-shadow: 0 0 0 2px var(--border-focus); }
+  .receipt-row:focus-within { box-shadow: 0 0 0 2px var(--border-focus); }
 
-  .card-top {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 14px 0;
-  }
-
-  .card-receipt-num {
+  .receipt-row .r-num {
+    width: 70px; flex-shrink: 0;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1rem; font-weight: 700; color: var(--accent); direction: ltr;
+    font-size: 0.82rem; font-weight: 700;
+    padding: 6px 8px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--surface2);
+    color: var(--accent); outline: none;
+    direction: ltr; text-align: center;
   }
 
-  .card-amount {
+  .receipt-row .r-amt {
+    width: 80px; flex-shrink: 0;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1.05rem; font-weight: 700; color: var(--green); direction: ltr;
+    font-size: 0.82rem; font-weight: 700;
+    padding: 6px 8px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--surface2);
+    color: var(--green); outline: none;
+    direction: ltr; text-align: center;
   }
 
-  .card-body {
-    padding: 10px 14px 14px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  .receipt-row .r-method {
+    width: 58px; flex-shrink: 0;
+    font-family: 'Readex Pro', sans-serif;
+    font-size: 0.72rem; font-weight: 600;
+    padding: 6px 4px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--surface2);
+    color: var(--text); outline: none;
+    appearance: none; -webkit-appearance: none;
+    text-align: center; cursor: pointer;
   }
 
-  .card-field { display: flex; flex-direction: column; gap: 3px; }
-  .card-field.full { grid-column: 1 / -1; }
-
-  .card-field label {
-    font-size: 0.68rem; font-weight: 600; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 0.3px;
+  .receipt-row .r-notes {
+    flex: 1; min-width: 0;
+    font-family: 'Readex Pro', sans-serif;
+    font-size: 0.78rem;
+    padding: 6px 8px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--surface2);
+    color: var(--text-dim); outline: none;
   }
 
-  .card-field input, .card-field select {
-    font-family: 'Readex Pro', sans-serif; font-size: 0.88rem;
-    padding: 9px 12px; border: 1.5px solid var(--border);
-    border-radius: 8px; background: var(--surface2);
-    color: var(--text); outline: none; width: 100%;
-    transition: border-color 0.15s;
-  }
-
-  .card-field input:focus, .card-field select:focus {
+  .receipt-row input:focus, .receipt-row select:focus {
     border-color: var(--accent); background: #fff;
   }
 
-  .card-field input.mono {
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 600; direction: ltr; text-align: right;
+  .receipt-row .r-del {
+    width: 28px; height: 28px; flex-shrink: 0;
+    background: none; border: none;
+    color: var(--text-muted); font-size: 13px;
+    cursor: pointer; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
   }
 
-  .card-field select {
-    appearance: none; -webkit-appearance: none; cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a09484' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: 12px center;
-    padding-left: 28px;
+  .receipt-row .r-del:active { background: var(--red-bg); color: var(--red); }
+
+  /* Column header */
+  .row-header {
+    display: flex; gap: 6px; padding: 0 10px;
+    margin-bottom: 4px;
+    font-size: 0.62rem; font-weight: 700;
+    color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  .card-actions {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 14px 12px;
-  }
-
-  .method-badge {
-    display: inline-block; padding: 3px 10px;
-    border-radius: 6px; font-size: 0.72rem; font-weight: 700;
-  }
-  .method-badge.cash { background: var(--green-bg); color: var(--green); }
-  .method-badge.credit { background: var(--red-bg); color: var(--red); }
-  .method-badge.transfer { background: var(--blue-bg); color: var(--blue); }
-  .method-badge.check { background: var(--accent-bg); color: var(--accent); }
+  .row-header span:nth-child(1) { width: 70px; text-align: center; flex-shrink: 0; }
+  .row-header span:nth-child(2) { width: 80px; text-align: center; flex-shrink: 0; }
+  .row-header span:nth-child(3) { width: 58px; text-align: center; flex-shrink: 0; }
+  .row-header span:nth-child(4) { flex: 1; }
+  .row-header span:nth-child(5) { width: 28px; flex-shrink: 0; }
 
   .empty-state {
     text-align: center; padding: 48px 20px; color: var(--text-muted);
@@ -867,66 +866,35 @@ Extract every receipt line. If there are totals or summary numbers (like a boxed
     if (!filtered.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none';
 
-    list.innerHTML = filtered.map(r => {
-      const mc = r.payment_method === 'كاش' ? 'cash' : r.payment_method === 'آجل' ? 'credit'
-        : r.payment_method === 'تحويل' ? 'transfer' : 'check';
-      return `
-      <div class="receipt-card">
-        <div class="card-top">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:0.72rem;color:var(--text-muted)">وصل #</span>
-            <span class="card-receipt-num">${esc(r.receipt_number)||'—'}</span>
-          </div>
-          <div class="card-amount">${fmt(r.amount)}</div>
-        </div>
-        <div class="card-body">
-          <div class="card-field">
-            <label>رقم الوصل</label>
-            <input class="mono" type="text" value="${esc(r.receipt_number)}" placeholder="930"
-              oninput="updateField(${r.id},'receipt_number',this.value);updHead(this)"
-              inputmode="numeric">
-          </div>
-          <div class="card-field">
-            <label>المبلغ</label>
-            <input class="mono" type="number" value="${r.amount||''}" placeholder="0"
-              oninput="updateField(${r.id},'amount',parseFloat(this.value)||0);updAmt(this)"
-              inputmode="decimal">
-          </div>
-          <div class="card-field">
-            <label>طريقة الدفع</label>
-            <select onchange="updateField(${r.id},'payment_method',this.value);renderCards()">
-              <option value="كاش" ${r.payment_method==='كاش'?'selected':''}>كاش</option>
-              <option value="آجل" ${r.payment_method==='آجل'?'selected':''}>آجل</option>
-              <option value="تحويل" ${r.payment_method==='تحويل'?'selected':''}>تحويل</option>
-              <option value="شيك" ${r.payment_method==='شيك'?'selected':''}>شيك</option>
-            </select>
-          </div>
-          <div class="card-field">
-            <label>التاريخ</label>
-            <input class="mono" type="date" value="${r.receipt_date||''}"
-              onchange="updateField(${r.id},'receipt_date',this.value)">
-          </div>
-          <div class="card-field full">
-            <label>ملاحظات</label>
-            <input type="text" value="${esc(r.notes)}" placeholder="..."
-              oninput="updateField(${r.id},'notes',this.value)">
-          </div>
-        </div>
-        <div class="card-actions">
-          <span class="method-badge ${mc}">${r.payment_method||'كاش'}</span>
-          <button class="btn-danger-sm" onclick="deleteReceipt(${r.id})">🗑️</button>
-        </div>
-      </div>`;
-    }).join('');
+    const header = `<div class="row-header">
+      <span>الوصل</span><span>المبلغ</span><span>الدفع</span><span>ملاحظات</span><span></span>
+    </div>`;
+
+    const rows = filtered.map(r => `
+      <div class="receipt-row">
+        <input class="r-num" type="text" value="${esc(r.receipt_number)}" placeholder="#"
+          oninput="updateField(${r.id},'receipt_number',this.value)"
+          inputmode="numeric">
+        <input class="r-amt" type="number" value="${r.amount||''}" placeholder="0"
+          oninput="updateField(${r.id},'amount',parseFloat(this.value)||0)"
+          inputmode="decimal">
+        <select class="r-method" onchange="updateField(${r.id},'payment_method',this.value)">
+          <option value="كاش" ${r.payment_method==='كاش'?'selected':''}>كاش</option>
+          <option value="آجل" ${r.payment_method==='آجل'?'selected':''}>آجل</option>
+          <option value="تحويل" ${r.payment_method==='تحويل'?'selected':''}>تحويل</option>
+          <option value="شيك" ${r.payment_method==='شيك'?'selected':''}>شيك</option>
+        </select>
+        <input class="r-notes" type="text" value="${esc(r.notes)}" placeholder="ملاحظات..."
+          oninput="updateField(${r.id},'notes',this.value)">
+        <button class="r-del" onclick="deleteReceipt(${r.id})">🗑</button>
+      </div>
+    `).join('');
+
+    list.innerHTML = header + rows;
   }
 
-  function updHead(el) {
-    el.closest('.receipt-card').querySelector('.card-receipt-num').textContent = el.value || '—';
-  }
-
-  function updAmt(el) {
-    el.closest('.receipt-card').querySelector('.card-amount').textContent = fmt(el.value);
-  }
+  function updHead() {}
+  function updAmt() {}
 
   function esc(s) { return s == null ? '' : String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
   function fmt(n) { return (parseFloat(n)||0).toLocaleString(); }
