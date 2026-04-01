@@ -569,8 +569,8 @@ function renderEnvelopes() {
         </div>
         <div class="env-field">
           <label>المبلغ المعلن (المربع)</label>
-          <input class="mono" type="number" value="${declared||''}" placeholder="0"
-            oninput="updateEnvelope(${e.id},'declared_total',parseFloat(this.value)||0)" inputmode="decimal">
+          <input class="mono" type="text" value="${declared||''}" placeholder="0"
+            oninput="updateEnvelope(${e.id},'declared_total',parseNum(this.value))" inputmode="numeric">
         </div>
         <div class="env-field full">
           <label>ملاحظات</label>
@@ -585,8 +585,8 @@ function renderEnvelopes() {
             <span class="r-label">#${i+1}</span>
             <input class="r-num" type="text" value="${esc(r.num)}" placeholder="رقم"
               oninput="updateReceipt(${e.id},${i},'num',this.value)" inputmode="numeric">
-            <input class="r-amt" type="number" value="${r.amount||''}" placeholder="مبلغ"
-              oninput="updateReceipt(${e.id},${i},'amount',parseFloat(this.value)||0)" inputmode="decimal">
+            <input class="r-amt" type="text" value="${r.amount||''}" placeholder="مبلغ"
+              oninput="updateReceipt(${e.id},${i},'amount',parseNum(this.value))" inputmode="numeric">
             <input class="r-note" type="text" value="${esc(r.note||'')}" placeholder="ملاحظة"
               oninput="updateReceipt(${e.id},${i},'note',this.value)">
             <button class="btn-danger-sm" onclick="removeReceiptFromEnvelope(${e.id},${i})" style="flex-shrink:0">✕</button>
@@ -604,6 +604,12 @@ function renderEnvelopes() {
 }
 
 function esc(s) { return s==null?'':String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function parseNum(v) {
+  if(!v && v !== 0) return 0;
+  const cleaned = String(v).replace(/[^\d.\-]/g,'');
+  return parseFloat(cleaned) || 0;
+}
 
 function updateStats() {
   const total = envelopes.reduce((s,e)=>s+calcActual(e),0);
