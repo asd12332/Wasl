@@ -343,37 +343,77 @@ async function addEnvelope(data) {
     syncState('ok'); renderEnvelopes(); updateStats();
 
     // Sync to Google Sheets
-    syncToSheets(res[0]);
+    syncToSheets(res[0], 'add');
 
     return res[0];
   } catch(e) { syncState('err'); showToast('❌ خطأ','error'); return null; }
 }
 
 // ─── GOOGLE SHEETS SYNC ───
-async function syncToSheets(env) {
+async function syncToSheets(env, action) {
   if(!SHEETS_URL) return;
   try {
     const receipts = env.receipts || [];
     const actual = receipts.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
     const declared = parseFloat(env.declared_total)||0;
 
-    // Send each receipt as a row
-    const rows = receipts.map(r => ({
+    if(action === 'delete') {
+      await fetch(SHEETS_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete',
+          envelope_date: env.envelope_date || '',
+          declared_total: declared
+        })
+      });
+      return;
+    }
+
+    const rows = receipts.map((r, i) => ({
       date: env.envelope_date || '',
       receipt_number: r.num || '',
       amount: r.amount || 0,
       note: r.note || '',
-      declared_total: declared,
-      actual_total: actual,
-      match: actual === declared ? 'نعم' : 'لا',
-      envelope_notes: env.notes || ''
+      declared_total: i === 0 ? declared : '',
+      match: i === 0 ? (actual === declared ? 'نعم' : 'لا') : '',
+      envelope_notes: i === 0 ? String(env.notes || '') : ''
     }));
 
     await fetch(SHEETS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
+      method: 'POST', mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rows })
+      body: JSON.stringify({ action: action || 'add', rows })
+    });
+  } catch(e) { console.error('Sheets sync error:', e); }
+}
+
+async function syncUpdateToSheets(env, oldDate, oldDeclared) {
+  if(!SHEETS_URL) return;
+  try {
+    const receipts = env.receipts || [];
+    const actual = receipts.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+    const declared = parseFloat(env.declared_total)||0;
+
+    const rows = receipts.map((r, i) => ({
+      date: env.envelope_date || '',
+      receipt_number: r.num || '',
+      amount: r.amount || 0,
+      note: r.note || '',
+      declared_total: i === 0 ? declared : '',
+      match: i === 0 ? (actual === declared ? 'نعم' : 'لا') : '',
+      envelope_notes: i === 0 ? String(env.notes || '') : ''
+    }));
+
+    await fetch(SHEETS_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'update',
+        old_date: oldDate,
+        old_declared: oldDeclared,
+        rows
+      })
     });
   } catch(e) { console.error('Sheets sync error:', e); }
 }
@@ -436,17 +476,22 @@ async function pushEnvelope(id) {
     });
     if(!r.ok) throw 0;
     syncState('ok');
-  } catch(e) { syncState('err'); }
+    // Sync edit to Sheets (delete old + add new)
+    syncToSheets(e, 'add');
+  } catch(err) { syncState('err'); }
 }
 
 async function deleteEnvelope(id) {
   if(!confirm('حذف هذا الظرف؟')) return;
+  const env = envelopes.find(x=>x.id===id);
   syncState('sync');
   try {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/envelopes?id=eq.${id}`, { method:'DELETE', headers:hdrs() });
     if(!r.ok) throw 0;
     envelopes = envelopes.filter(x=>x.id!==id);
     syncState('ok'); renderEnvelopes(); updateStats();
+    // Sync delete to Sheets
+    if(env) syncToSheets(env, 'delete');
   } catch(e) { syncState('err'); }
 }
 
