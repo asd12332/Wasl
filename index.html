@@ -167,21 +167,21 @@
   .sql-info summary { font-size:.78rem; color:var(--text-dim); cursor:pointer; font-weight:600; }
   .sql-block { background:#1c1710; color:#e8e0d4; padding:12px; border-radius:10px; margin:8px 0; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:.68rem; line-height:1.7; direction:ltr; text-align:left; white-space:pre; }
 
-  /* ─── Login Screen ─── */
-  .login-screen {
+  /* ─── Device Auth Screen ─── */
+  .auth-screen {
     position:fixed; inset:0; background:var(--bg);
     display:flex; align-items:center; justify-content:center;
     padding:24px 16px; z-index:2000;
   }
-  .login-screen.hidden { display:none; }
+  .auth-screen.hidden { display:none; }
 
-  .login-card {
+  .auth-card {
     background:var(--surface); border-radius:20px;
     padding:36px 24px; width:100%; max-width:360px;
     box-shadow:0 8px 40px rgba(0,0,0,.08);
     text-align:center;
   }
-  .login-card .logo-login {
+  .auth-card .logo-auth {
     width:64px; height:64px;
     background:linear-gradient(135deg,var(--accent),#c4a040);
     border-radius:18px;
@@ -189,46 +189,64 @@
     font-size:30px; margin:0 auto 20px;
     box-shadow:0 4px 16px rgba(122,92,30,.25);
   }
-  .login-card h1 { font-size:1.3rem; margin-bottom:6px; }
-  .login-card .sub { color:var(--text-muted); font-size:.82rem; margin-bottom:24px; }
-  .login-card input {
-    width:100%; font-family:'JetBrains Mono',monospace;
-    font-size:1.1rem; padding:14px 16px;
-    border:2px solid var(--border); border-radius:12px;
+  .auth-card h1 { font-size:1.3rem; margin-bottom:6px; }
+  .auth-card .sub { color:var(--text-muted); font-size:.82rem; margin-bottom:20px; line-height:1.6; }
+
+  .device-code {
+    font-family:'JetBrains Mono',monospace;
+    font-size:1.3rem; font-weight:700; letter-spacing:3px;
+    color:var(--accent); background:var(--accent-bg);
+    padding:14px; border-radius:12px; margin-bottom:16px;
+    direction:ltr;
+  }
+
+  .auth-status {
+    padding:12px 16px; border-radius:10px;
+    font-size:.82rem; font-weight:600; margin-bottom:16px;
+  }
+  .auth-status.pending { background:var(--orange-bg); color:var(--orange); }
+  .auth-status.rejected { background:var(--red-bg); color:var(--red); }
+  .auth-status.checking { background:var(--blue-bg); color:var(--blue); }
+
+  .auth-card input {
+    width:100%; font-family:'Readex Pro',sans-serif;
+    font-size:.88rem; padding:12px 14px;
+    border:1.5px solid var(--border); border-radius:10px;
     background:var(--surface2); color:var(--text);
-    outline:none; text-align:center; letter-spacing:4px;
-    margin-bottom:16px;
+    outline:none; margin-bottom:12px;
   }
-  .login-card input:focus { border-color:var(--accent); }
-  .login-card input.shake {
-    animation: shake .4s ease;
-    border-color:var(--red);
-  }
-  @keyframes shake {
-    0%,100% { transform:translateX(0); }
-    20%,60% { transform:translateX(-8px); }
-    40%,80% { transform:translateX(8px); }
-  }
-  .login-error {
-    color:var(--red); font-size:.82rem; font-weight:600;
-    margin-bottom:12px; display:none;
-  }
-  .login-error.show { display:block; }
+  .auth-card input:focus { border-color:var(--accent); }
 </style>
 </head>
 <body>
 
-<!-- ════════ LOGIN SCREEN ════════ -->
-<div class="login-screen" id="loginScreen">
-  <div class="login-card">
-    <div class="logo-login">📋</div>
+<!-- ════════ DEVICE AUTH SCREEN ════════ -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="logo-auth">📋</div>
     <h1>سجل الوصولات</h1>
-    <div class="sub">ادخل كلمة المرور للمتابعة</div>
-    <div class="login-error" id="loginError">كلمة المرور غير صحيحة</div>
-    <input type="password" id="loginPassword" placeholder="••••••" 
-      inputmode="numeric" autocomplete="off"
-      onkeydown="if(event.key==='Enter')checkLogin()">
-    <button class="btn btn-primary" style="width:100%" onclick="checkLogin()">دخول</button>
+    <div class="sub">هذا التطبيق محمي — يعمل فقط على الأجهزة المعتمدة</div>
+    
+    <div id="authChecking" class="auth-status checking">⏳ جاري التحقق من الجهاز...</div>
+    
+    <div id="authPending" style="display:none">
+      <div class="sub">كود جهازك:</div>
+      <div class="device-code" id="deviceCodeDisplay"></div>
+      <input type="text" id="deviceNameInput" placeholder="اسم الجهاز (مثلاً: جوال أحمد)">
+      <button class="btn btn-primary" style="width:100%" onclick="requestAccess()">طلب الوصول</button>
+    </div>
+
+    <div id="authWaiting" style="display:none">
+      <div class="auth-status pending">⏳ تم إرسال الطلب — بانتظار الموافقة من المدير</div>
+      <div class="device-code" id="deviceCodeWaiting"></div>
+      <div class="sub" style="margin-top:12px">أرسل هذا الكود للمدير ليوافق عليه</div>
+      <button class="btn btn-ghost" style="width:100%;margin-top:12px" onclick="checkDeviceAuth()">🔄 تحقق مرة أخرى</button>
+    </div>
+
+    <div id="authRejected" style="display:none">
+      <div class="auth-status rejected">❌ هذا الجهاز غير مصرح له</div>
+      <button class="btn btn-ghost" style="width:100%;margin-top:12px" onclick="checkDeviceAuth()">🔄 تحقق مرة أخرى</button>
+    </div>
   </div>
 </div>
 
@@ -336,43 +354,98 @@ CREATE POLICY "Allow all" ON envelopes
 
 <script>
 // ═══════════════════════════════
-//  PASSWORD — hashed for security
-//  To change password: open browser console, type:
-//  crypto.subtle.digest('SHA-256', new TextEncoder().encode('YOUR_NEW_PASSWORD')).then(h=>console.log(Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')))
-//  Then replace the hash below
+//  DEVICE AUTH
 // ═══════════════════════════════
-const APP_PASSWORD_HASH = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'; // hash of '1234'
-
-async function hashPassword(pwd) {
-  const data = new TextEncoder().encode(pwd);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
+function getDeviceId() {
+  let id = localStorage.getItem('device_id');
+  if (!id) {
+    id = 'DEV-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    localStorage.setItem('device_id', id);
+  }
+  return id;
 }
 
-// ─── LOGIN ───
-async function checkLogin() {
-  const input = document.getElementById('loginPassword');
-  const error = document.getElementById('loginError');
-  const hashed = await hashPassword(input.value);
+const DEVICE_ID = getDeviceId();
 
-  if (hashed === APP_PASSWORD_HASH) {
-    sessionStorage.setItem('logged_in', 'true');
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('appWrapper').style.display = 'block';
-    loadEnvelopes();
-  } else {
-    error.classList.add('show');
-    input.classList.add('shake');
-    input.value = '';
-    setTimeout(() => input.classList.remove('shake'), 500);
+async function checkDeviceAuth() {
+  const authScreen = document.getElementById('authScreen');
+  const checking = document.getElementById('authChecking');
+  const pending = document.getElementById('authPending');
+  const waiting = document.getElementById('authWaiting');
+  const rejected = document.getElementById('authRejected');
+
+  // Reset
+  checking.style.display = 'block';
+  pending.style.display = 'none';
+  waiting.style.display = 'none';
+  rejected.style.display = 'none';
+
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/approved_devices?device_id=eq.${DEVICE_ID}&select=*`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (!r.ok) throw new Error('DB error');
+    const data = await r.json();
+
+    if (data.length === 0) {
+      // Device not registered — show request form
+      checking.style.display = 'none';
+      pending.style.display = 'block';
+      document.getElementById('deviceCodeDisplay').textContent = DEVICE_ID;
+      return;
+    }
+
+    const device = data[0];
+    if (device.approved) {
+      // Approved — show app
+      authScreen.classList.add('hidden');
+      document.getElementById('appWrapper').style.display = 'block';
+      loadEnvelopes();
+      return;
+    }
+
+    // Registered but not yet approved — show waiting
+    checking.style.display = 'none';
+    waiting.style.display = 'block';
+    document.getElementById('deviceCodeWaiting').textContent = DEVICE_ID;
+
+  } catch(e) {
+    // DB error — show pending as fallback
+    checking.style.display = 'none';
+    pending.style.display = 'block';
+    document.getElementById('deviceCodeDisplay').textContent = DEVICE_ID;
   }
 }
 
-// Check if already logged in this session
-if (sessionStorage.getItem('logged_in') === 'true') {
-  document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('appWrapper').style.display = 'block';
+async function requestAccess() {
+  const name = document.getElementById('deviceNameInput').value.trim() || 'جهاز غير مسمى';
+
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/approved_devices`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        device_id: DEVICE_ID,
+        device_name: name,
+        approved: false
+      })
+    });
+  } catch(e) {}
+
+  // Show waiting screen
+  document.getElementById('authPending').style.display = 'none';
+  document.getElementById('authWaiting').style.display = 'block';
+  document.getElementById('deviceCodeWaiting').textContent = DEVICE_ID;
 }
+
+// Start auth check
+checkDeviceAuth();
 
 const SUPABASE_URL = 'https://njvcpytgxnhqkbnntnbn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_3w0Ez-vr5RGTnXfo9nCmqg_YdPIU2y9';
