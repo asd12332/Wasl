@@ -237,8 +237,13 @@
     <h2>🤖 مفتاح AI</h2>
     <div class="sub">لتفعيل القراءة التلقائية، ادخل مفتاح Anthropic API.<br>يُحفظ في متصفحك فقط.<br><span style="direction:ltr;display:inline-block">console.anthropic.com → API Keys</span></div>
     <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+
+    <h2 style="margin-top:18px">📊 ربط Google Sheets</h2>
+    <div class="sub">ادخل رابط Apps Script Web App لإرسال البيانات تلقائياً إلى Google Sheets.</div>
+    <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/...../exec" style="direction:ltr">
+
     <div class="modal-btns">
-      <button class="btn btn-primary" onclick="saveApiKey()">حفظ</button>
+      <button class="btn btn-primary" onclick="saveSettings()">حفظ</button>
       <button class="btn btn-ghost" onclick="closeApiKeyModal()">إلغاء</button>
     </div>
     <div class="sql-info">
@@ -266,15 +271,29 @@ CREATE POLICY "Allow all" ON envelopes
 const SUPABASE_URL = 'https://njvcpytgxnhqkbnntnbn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_3w0Ez-vr5RGTnXfo9nCmqg_YdPIU2y9';
 
+// Google Sheets sync
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxaeOZzTjRJM2hlvUEyoGtbTZPYW4rONWqE5STcmh9Ao5VpA4EiGTIFmEtrsQSs1l8w/exec';
+
 let envelopes = [];
 let scanBase64 = null;
 
 loadEnvelopes();
 
 function getApiKey() { return localStorage.getItem('anthropic_api_key') || ''; }
-function showApiKeyModal() { document.getElementById('apiKeyInput').value = getApiKey(); document.getElementById('apiKeyModal').classList.add('active'); }
+function showApiKeyModal() {
+  document.getElementById('apiKeyInput').value = getApiKey();
+  document.getElementById('sheetsUrlInput').value = localStorage.getItem('sheets_webhook_url') || '';
+  document.getElementById('apiKeyModal').classList.add('active');
+}
 function closeApiKeyModal() { document.getElementById('apiKeyModal').classList.remove('active'); }
-function saveApiKey() { const k = document.getElementById('apiKeyInput').value.trim(); if(k) localStorage.setItem('anthropic_api_key',k); else localStorage.removeItem('anthropic_api_key'); closeApiKeyModal(); showToast('تم حفظ المفتاح ✓','success'); }
+function saveSettings() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if(key) localStorage.setItem('anthropic_api_key',key); else localStorage.removeItem('anthropic_api_key');
+  const sheetsUrl = document.getElementById('sheetsUrlInput').value.trim();
+  if(sheetsUrl) localStorage.setItem('sheets_webhook_url',sheetsUrl); else localStorage.removeItem('sheets_webhook_url');
+  closeApiKeyModal();
+  showToast('تم الحفظ ✓','success');
+}
 
 function hdrs(prefer) {
   const h = { 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json' };
@@ -322,8 +341,41 @@ async function addEnvelope(data) {
     res[0].receipts = typeof res[0].receipts === 'string' ? JSON.parse(res[0].receipts) : res[0].receipts;
     envelopes.unshift(res[0]);
     syncState('ok'); renderEnvelopes(); updateStats();
+
+    // Sync to Google Sheets
+    syncToSheets(res[0]);
+
     return res[0];
   } catch(e) { syncState('err'); showToast('❌ خطأ','error'); return null; }
+}
+
+// ─── GOOGLE SHEETS SYNC ───
+async function syncToSheets(env) {
+  if(!SHEETS_URL) return;
+  try {
+    const receipts = env.receipts || [];
+    const actual = receipts.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+    const declared = parseFloat(env.declared_total)||0;
+
+    // Send each receipt as a row
+    const rows = receipts.map(r => ({
+      date: env.envelope_date || '',
+      receipt_number: r.num || '',
+      amount: r.amount || 0,
+      note: r.note || '',
+      declared_total: declared,
+      actual_total: actual,
+      match: actual === declared ? 'نعم' : 'لا',
+      envelope_notes: env.notes || ''
+    }));
+
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows })
+    });
+  } catch(e) { console.error('Sheets sync error:', e); }
 }
 
 async function addEnvelopeManual() {
