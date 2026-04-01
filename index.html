@@ -336,9 +336,36 @@ let saveTimers = {};
 function updateEnvelope(id, field, value) {
   const e = envelopes.find(x=>x.id===id);
   if(e) e[field] = value;
-  renderEnvelopes(); updateStats();
+  // Don't re-render — just update the totals on this card
+  refreshCardTotals(id);
+  updateStats();
   clearTimeout(saveTimers[id]);
   saveTimers[id] = setTimeout(()=>pushEnvelope(id), 700);
+}
+
+function refreshCardTotals(id) {
+  const e = envelopes.find(x=>x.id===id);
+  if(!e) return;
+  const card = document.querySelector(`.envelope-card[data-id="${id}"]`);
+  if(!card) return;
+  const actual = calcActual(e);
+  const declared = parseFloat(e.declared_total)||0;
+  const match = actual === declared;
+
+  // Update badge
+  const badge = card.querySelector('.env-badge');
+  if(badge) { badge.className = 'env-badge'; badge.className = match ? 'match-badge' : 'mismatch-badge'; badge.textContent = match ? '✓ متطابق' : '✕ غير متطابق'; }
+
+  // Update totals
+  const declaredEl = card.querySelector('.t-declared');
+  const actualEl = card.querySelector('.t-actual');
+  const vsEl = card.querySelector('.env-vs');
+  if(declaredEl) { declaredEl.textContent = declared.toLocaleString(); declaredEl.className = 't-val ' + (match?'ok':'bad'); }
+  if(actualEl) { actualEl.textContent = actual.toLocaleString(); actualEl.className = 't-val ' + (match?'ok':'bad'); }
+  if(vsEl) vsEl.textContent = match ? '=' : '≠';
+
+  // Update card border
+  card.classList.toggle('mismatch', !match);
 }
 
 async function pushEnvelope(id) {
@@ -376,21 +403,29 @@ function addReceiptToEnvelope(envId) {
   const e = envelopes.find(x=>x.id===envId);
   if(!e) return;
   e.receipts.push({num:'',amount:0,note:''});
-  updateEnvelope(envId,'receipts',e.receipts);
+  renderEnvelopes(); updateStats();
+  clearTimeout(saveTimers[envId]);
+  saveTimers[envId] = setTimeout(()=>pushEnvelope(envId), 700);
 }
 
 function removeReceiptFromEnvelope(envId, idx) {
   const e = envelopes.find(x=>x.id===envId);
   if(!e) return;
   e.receipts.splice(idx,1);
-  updateEnvelope(envId,'receipts',e.receipts);
+  renderEnvelopes(); updateStats();
+  clearTimeout(saveTimers[envId]);
+  saveTimers[envId] = setTimeout(()=>pushEnvelope(envId), 700);
 }
 
 function updateReceipt(envId, idx, field, value) {
   const e = envelopes.find(x=>x.id===envId);
   if(!e || !e.receipts[idx]) return;
   e.receipts[idx][field] = value;
-  updateEnvelope(envId,'receipts',e.receipts);
+  // Only refresh totals, don't re-render
+  refreshCardTotals(envId);
+  updateStats();
+  clearTimeout(saveTimers[envId]);
+  saveTimers[envId] = setTimeout(()=>pushEnvelope(envId), 700);
 }
 
 function calcActual(env) {
@@ -543,21 +578,21 @@ function renderEnvelopes() {
     const receipts = e.receipts||[];
 
     return `
-    <div class="envelope-card ${match?'':'mismatch'}">
+    <div class="envelope-card ${match?'':'mismatch'}" data-id="${e.id}">
       <div class="env-top">
         <div style="display:flex;align-items:center;gap:8px">
-          ${match ? '<span class="match-badge">✓ متطابق</span>' : '<span class="mismatch-badge">✕ غير متطابق</span>'}
+          ${match ? '<span class="env-badge match-badge">✓ متطابق</span>' : '<span class="env-badge mismatch-badge">✕ غير متطابق</span>'}
           <span class="env-date">${e.envelope_date||'—'}</span>
         </div>
         <div class="env-totals">
           <div class="env-total-box">
             <div class="t-label">المعلن</div>
-            <div class="t-val ${match?'ok':'bad'}">${declared.toLocaleString()}</div>
+            <div class="t-val t-declared ${match?'ok':'bad'}">${declared.toLocaleString()}</div>
           </div>
           <span class="env-vs">${match?'=':'≠'}</span>
           <div class="env-total-box">
             <div class="t-label">الفعلي</div>
-            <div class="t-val ${match?'ok':'bad'}">${actual.toLocaleString()}</div>
+            <div class="t-val t-actual ${match?'ok':'bad'}">${actual.toLocaleString()}</div>
           </div>
         </div>
       </div>
