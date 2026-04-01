@@ -180,6 +180,7 @@
     <span class="sync-dot" id="syncDot"></span>
   </div>
   <div class="app-header-left">
+    <button class="btn btn-ghost btn-icon" onclick="syncAllToSheets()" title="مزامنة Sheets">📊</button>
     <button class="btn btn-ghost btn-icon" onclick="exportCSV()" title="تصدير">📥</button>
     <button class="btn btn-ghost btn-icon" onclick="loadEnvelopes()" title="تحديث">🔄</button>
     <button class="btn btn-ghost btn-icon" onclick="showApiKeyModal()" title="AI">🤖</button>
@@ -476,8 +477,6 @@ async function pushEnvelope(id) {
     });
     if(!r.ok) throw 0;
     syncState('ok');
-    // Sync edit to Sheets (delete old + add new)
-    syncToSheets(e, 'add');
   } catch(err) { syncState('err'); }
 }
 
@@ -777,6 +776,37 @@ function showToast(msg,type) {
   t.textContent=msg;
   document.body.appendChild(t);
   setTimeout(()=>t.remove(),2500);
+}
+
+// ─── SYNC ALL TO SHEETS ───
+async function syncAllToSheets() {
+  if(!SHEETS_URL) { showToast('لا يوجد رابط Sheets','error'); return; }
+  if(!envelopes.length) { showToast('لا توجد بيانات','error'); return; }
+
+  showToast('⏳ جاري المزامنة...','success');
+
+  try {
+    // First clear the sheet
+    await fetch(SHEETS_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'clear_all' })
+    });
+
+    // Small delay to let clear finish
+    await new Promise(r => setTimeout(r, 1000));
+
+    // Then add all envelopes
+    for(const env of envelopes) {
+      await syncToSheets(env, 'add');
+      await new Promise(r => setTimeout(r, 300));
+    }
+
+    showToast(`✅ تمت مزامنة ${envelopes.length} ظرف`,'success');
+  } catch(e) {
+    showToast('❌ خطأ في المزامنة','error');
+    console.error(e);
+  }
 }
 </script>
 </body>
