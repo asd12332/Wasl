@@ -355,7 +355,6 @@ async function syncToSheets(env, action) {
   if(!SHEETS_URL) return;
   try {
     const receipts = env.receipts || [];
-    const actual = receipts.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
     const declared = parseFloat(env.declared_total)||0;
 
     if(action === 'delete') {
@@ -375,10 +374,8 @@ async function syncToSheets(env, action) {
       date: env.envelope_date || '',
       receipt_number: r.num || '',
       amount: r.amount || 0,
-      note: r.note || '',
-      declared_total: i === 0 ? declared : '',
-      match: i === 0 ? (actual === declared ? 'نعم' : 'لا') : '',
-      envelope_notes: i === 0 ? String(env.notes || '') : ''
+      note: String(r.note || ''),
+      envelope_notes: String(env.notes || '')
     }));
 
     await fetch(SHEETS_URL, {
@@ -393,17 +390,12 @@ async function syncUpdateToSheets(env, oldDate, oldDeclared) {
   if(!SHEETS_URL) return;
   try {
     const receipts = env.receipts || [];
-    const actual = receipts.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
-    const declared = parseFloat(env.declared_total)||0;
-
-    const rows = receipts.map((r, i) => ({
+    const rows = receipts.map(r => ({
       date: env.envelope_date || '',
       receipt_number: r.num || '',
       amount: r.amount || 0,
-      note: r.note || '',
-      declared_total: i === 0 ? declared : '',
-      match: i === 0 ? (actual === declared ? 'نعم' : 'لا') : '',
-      envelope_notes: i === 0 ? String(env.notes || '') : ''
+      note: String(r.note || ''),
+      envelope_notes: String(env.notes || '')
     }));
 
     await fetch(SHEETS_URL, {
